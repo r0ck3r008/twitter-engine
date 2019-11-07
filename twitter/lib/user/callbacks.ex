@@ -21,6 +21,13 @@ defmodule Twitter.User do
     Agent.update(cli_agnt_pid, &Map.put(&1, client_pid))
     {:reply, u_hash, {e_pid, u_hash}}
   end
+
+  @impl true
+  def handle_cast({:login, cli_pid}, {e_pid, cli_agnt_pid}) do
+    state=Agent.get(cli_agnt_pid, fn(state)->state end)
+    Agent.update(cli_agnt_pid, &Map.put(&1, state++[cli_pid]))
+    {:noreply, {e_pid, cli_agnt_pid}}
+  end
   ##########signup related
 
   @impl true

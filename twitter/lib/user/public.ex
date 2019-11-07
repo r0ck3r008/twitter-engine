@@ -6,4 +6,8 @@ defmodule Twitter.User.Public do
     {u_hash, cli_hash}
   end
 
+  def login(of, cli_pid) do
+    GenServer.cast(of, {:login, cli_pid})
+  end
+
 end
