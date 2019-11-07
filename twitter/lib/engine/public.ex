@@ -7,4 +7,8 @@ defmodule Twitter.Engine.Public do
     |> String.split(0, 8)
   end
 
+  def signup(of, u_pid) do
+    GenServer.call(of, {:signup, u_pid})
+  end
+
 end

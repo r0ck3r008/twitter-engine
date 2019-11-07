@@ -5,20 +5,20 @@ defmodule Twitter.Init do
     {:ok, e_pid}=Twitter.Engine.start_link
 
     #start clients
-    clients=for _x<-0..num-1, do: Twitter.Client.start_link(e_pid)
+    clients=for _x<-0..num-1, do: Twitter.Client.start_link
 
     #start client signup process
-    tasks=for {_, client}<-clients, do: Task.async(fn-> task_fn(client, 0) end)
+    tasks=for {_, client}<-clients, do: Task.async(fn-> task_fn(client, e_pid, 0) end)
 
     #wait for tasks to finish
     for task<-tasks, do: Task.await(task)
   end
 
-  def task_fn(client, 0) do
-    Twitter.Client.signup(client)
+  def task_fn(client, e_pid, 0) do
+    Twitter.Api.signup(client, e_pid)
     task_fn(client, 1)
   end
-  def task_fn(client, count) do
+  def task_fn(client, e_pid, count) do
     :timer.sleep(1000)
     task_fn(client, count)
   end

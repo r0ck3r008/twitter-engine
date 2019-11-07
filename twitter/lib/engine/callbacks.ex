@@ -14,6 +14,15 @@ defmodule Twitter.Engine do
     {:ok, state}
   end
 
+  ##########signup related
+  @impl true
+  def handle_call({:signup, u_pid}, _from, state) do
+    u_hash=Twitter.Engine.Public.hash_it(inspect u_pid)
+    Agent.update(u_agnt_pid, &Map.put(&1, u_hash, u_pid))
+    {:reply, u_hash, u_agnt_pid}
+  end
+  ##########signup related
+
   @impl true
   def terminate(_, _) do
     Logger.warn("Stopping the engine...")
