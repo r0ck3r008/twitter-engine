@@ -12,7 +12,7 @@ defmodule Twitter.Engine.Public do
   end
 
   def login(of, u_hash, cli_pid) do
-    GenServer.cast(of, {:login, u_hash, cli_pid})
+    GenServer.call(of, {:login, u_hash, cli_pid})
   end
 
 end

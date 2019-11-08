@@ -23,9 +23,10 @@ defmodule Twitter.Engine do
   end
 
   @impl true
-  def handle_cast({:login, u_hashi, cli_pid}, u_agnt_pid) do
+  def handle_call({:login, u_hash, cli_pid}, _from, u_agnt_pid) do
     u_pid=Agent.get(u_agnt_pid, &Map.get(&1, u_hash))
     Twitter.User.Public.login(u_pid, cli_pid)
+    {:reply, u_pid, u_agnt_pid}
   end
   ##########signup related
 
