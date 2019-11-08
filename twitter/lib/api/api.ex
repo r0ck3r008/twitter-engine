@@ -9,8 +9,8 @@ defmodule Twitter.Api do
     Twitter.Client.Public.login(client_pid, u_hash, e_pid)
   end
 
-  def follow(client_pid, u_hash, to_hash) do
-    Twitter.Client.follow(client_pid, to_hash)
+  def follow(client_pid, to_hash) do
+    Twitter.Client.Public.follow(client_pid, to_hash)
   end
 
 end

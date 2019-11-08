@@ -18,14 +18,13 @@ defmodule Twitter.User do
   @impl true
   def handle_call({:signup, client_pid}, _from, {e_pid, cli_agnt_pid}) do
     u_hash=Twitter.Engine.Public.signup(e_pid, self())
-    Agent.update(cli_agnt_pid, &Map.put(&1, client_pid))
+    Agent.update(cli_agnt_pid, &(&1++[client_pid]))
     {:reply, u_hash, {e_pid, cli_agnt_pid, u_hash}}
   end
 
   @impl true
   def handle_cast({:login, cli_pid}, {e_pid, cli_agnt_pid, u_hash}) do
-    state=Agent.get(cli_agnt_pid, fn(state)->state end)
-    Agent.update(cli_agnt_pid, &Map.put(&1, state++[cli_pid]))
+    Agent.update(cli_agnt_pid, &(&1++[cli_pid]))
     {:noreply, {e_pid, cli_agnt_pid, u_hash}}
   end
   ##########signup related

@@ -1,8 +1,8 @@
 defmodule TwitterTest do
   use ExUnit.Case
-  doctest Twitter
 
-  test "greets the world" do
-    assert Twitter.hello() == :world
+  test "Hashing test" do
+    assert Twitter.Engine.Public.hash_it("hello")
   end
+
 end

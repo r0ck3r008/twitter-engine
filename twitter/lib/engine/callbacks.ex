@@ -37,9 +37,9 @@ defmodule Twitter.Engine do
     state=Agent.get(fol_agnt_pid, &Map.get(&1, to_hash))
     case state do
       nil->
-        Agent.put(fol_agnt_pid, &Map.put(&1, to_hash, [u_hash]))
+        Agent.update(fol_agnt_pid, &Map.put(&1, to_hash, [u_hash]))
       _->
-        Agent.put(fol_agnt_pid, &Map.put(&1, to_hash, state++[u_hash]))
+        Agent.update(fol_agnt_pid, &Map.put(&1, to_hash, state++[u_hash]))
     end
     {:noreply, {u_agnt_pid, fol_agnt_pid}}
   end
