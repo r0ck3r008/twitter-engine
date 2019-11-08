@@ -19,16 +19,29 @@ defmodule Twitter.User do
   def handle_call({:signup, client_pid}, _from, {e_pid, cli_agnt_pid}) do
     u_hash=Twitter.Engine.Public.signup(e_pid, self())
     Agent.update(cli_agnt_pid, &Map.put(&1, client_pid))
-    {:reply, u_hash, {e_pid, u_hash}}
+    {:reply, u_hash, {e_pid, cli_agnt_pid, u_hash}}
   end
 
   @impl true
-  def handle_cast({:login, cli_pid}, {e_pid, cli_agnt_pid}) do
+  def handle_cast({:login, cli_pid}, {e_pid, cli_agnt_pid, u_hash}) do
     state=Agent.get(cli_agnt_pid, fn(state)->state end)
     Agent.update(cli_agnt_pid, &Map.put(&1, state++[cli_pid]))
-    {:noreply, {e_pid, cli_agnt_pid}}
+    {:noreply, {e_pid, cli_agnt_pid, u_hash}}
   end
   ##########signup related
+  
+  ##########follow related
+  @impl true
+  def handle_cast({:follow, cli_pid, to_hash}, {e_pid, cli_agnt_pid, u_hash}) do
+    state=Agent.get(cli_agnt_pid, fn(state)-> state end)
+    if cli_pid in state do
+      Twitter.Engine.Public.follow(e_pid, u_hash, to_hash)
+    else
+      Logger.warn("Follow request denied, client not logged in!")
+    end
+    {:noreply, {e_pid, cli_agnt_pid, u_hash}}
+  end
+  ###########follow related
 
   @impl true
   def terminate(_, _) do
