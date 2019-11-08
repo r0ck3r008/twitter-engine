@@ -8,4 +8,8 @@ defmodule Twitter.Client.Public do
     GenServer.cast(client_pid, {:login, u_hash, e_pid})
   end
 
+  def follow(client_pid, u_hash, to_hash) do
+    GenServer.cast(client_pid, {:follow, to_hash})
+  end
+
 end

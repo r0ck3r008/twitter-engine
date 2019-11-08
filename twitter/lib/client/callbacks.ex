@@ -29,9 +29,11 @@ defmodule Twitter.Client do
   
   ###########follow related
   @impl true
-  def handle_cast({:follow, to_hash}, e_pid) do
-
+  def handle_cast({:follow, to_hash}, {u_hash, u_pid, e_pid}) do
+    Twitter.User.Public.follow(u_pid, self(), to_hash)
+    {:noreply, {u_hash, u_pid, e_pid}}
   end
+  ###########follow related
 
   @impl true
   def terminate(_, _) do
