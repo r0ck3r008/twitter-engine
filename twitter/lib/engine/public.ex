@@ -15,4 +15,8 @@ defmodule Twitter.Engine.Public do
     GenServer.call(of, {:login, u_hash, cli_pid})
   end
 
+  def follow(of, u_hash, to_hash) do
+    GenServer.cast(of, {:follow, u_hash, to_pid})
+  end
+
 end
