@@ -7,16 +7,18 @@ defmodule Twitter.Simulator.Public do
     |> String.slice(0, 8)
   end
 
-  def signup(client_pid) do
-
+  def signup(of, client) do
+    GenServer.cast(of, {:signup, client})
   end
 
-  def login(u_hash) do
-
+  def login(of, u_hash) do
+    {:ok, client_pid}=Twitter.Client.start_link
+    GenServer.call(of, {:login, client_pid, u_hash})
+    client_pid
   end
 
-  def follow(u_hash, to_hash) do
-
+  def follow(of, client_pid, to_hash) do
+    GenServer.cast(of, {:follow, client_pid, to_hash})
   end
 
 end
