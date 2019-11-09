@@ -18,7 +18,7 @@ defmodule Twitter.Engine do
   ##########signup related
   @impl true
   def handle_call({:signup, u_pid}, _from, {u_agnt_pid, fol_agnt_pid}) do
-    u_hash=Twitter.Engine.Public.hash_it(inspect u_pid)
+    u_hash=Twitter.Simulator.Public.hash_it(inspect u_pid)
     Agent.update(u_agnt_pid, &Map.put(&1, u_hash, u_pid))
     {:reply, u_hash, {u_agnt_pid, fol_agnt_pid}}
   end
