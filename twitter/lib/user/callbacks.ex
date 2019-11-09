@@ -4,7 +4,6 @@ defmodule Twitter.User do
   require Logger
 
   def start_link(e_pid) do
-    Logger.debug("Signing up the user...")
     {:ok, cli_agnt_pid}=Agent.start_link(fn-> [] end)
     GenServer.start_link(__MODULE__, {e_pid, cli_agnt_pid})
   end

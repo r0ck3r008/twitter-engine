@@ -17,6 +17,7 @@ defmodule Twitter.Client do
   def handle_cast({:signup, e_pid},  _) do
     {:ok, u_pid}=Twitter.User.start_link(e_pid)
     u_hash=Twitter.User.Public.signup(u_pid, self())
+    Logger.debug("Signup success #{u_hash}")
     {:noreply, {u_hash, u_pid, e_pid}}
   end
 
