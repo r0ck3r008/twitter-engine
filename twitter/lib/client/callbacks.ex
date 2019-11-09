@@ -14,11 +14,11 @@ defmodule Twitter.Client do
 
   ##########signup related
   @impl true
-  def handle_cast({:signup, e_pid},  _) do
+  def handle_call({:signup, e_pid}, _from,  _) do
     {:ok, u_pid}=Twitter.User.start_link(e_pid)
     u_hash=Twitter.User.Public.signup(u_pid, self())
     Logger.debug("Signup success #{u_hash}")
-    {:noreply, {u_hash, u_pid, e_pid}}
+    {:reply, u_hash, {u_hash, u_pid, e_pid}}
   end
 
   @impl true
