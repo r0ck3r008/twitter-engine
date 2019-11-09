@@ -13,6 +13,11 @@ defmodule Twitter.Simulator do
     {:ok, state}
   end
 
+  @impl true
+  def handle_call(:fetch_users, _from, {e_pid, u_list}) do
+    {:reply, u_list, {e_pid, u_list}}
+  end
+
   ##########signup related
   @impl true
   def handle_cast({:signup, client_pid}, {e_pid, u_list}) do

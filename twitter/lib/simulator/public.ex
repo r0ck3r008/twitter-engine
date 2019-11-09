@@ -7,6 +7,10 @@ defmodule Twitter.Simulator.Public do
     |> String.slice(0, 8)
   end
 
+  def fetch_users(of) do
+    GenServer.call(of, :fetch_users)
+  end
+
   def signup(of, client) do
     GenServer.cast(of, {:signup, client})
   end

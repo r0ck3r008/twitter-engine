@@ -41,6 +41,7 @@ defmodule Twitter.Engine do
       _->
         Agent.update(fol_agnt_pid, &Map.put(&1, to_hash, state++[u_hash]))
     end
+    Logger.debug("Follow success from #{u_hash} to #{to_hash}")
     {:noreply, {u_agnt_pid, fol_agnt_pid}}
   end
   ###########follow related

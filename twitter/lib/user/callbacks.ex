@@ -24,6 +24,7 @@ defmodule Twitter.User do
   @impl true
   def handle_cast({:login, cli_pid}, {e_pid, cli_agnt_pid, u_hash}) do
     Agent.update(cli_agnt_pid, &(&1++[cli_pid]))
+    Logger.debug("Login Success from client #{inspect cli_pid} to #{u_hash}")
     {:noreply, {e_pid, cli_agnt_pid, u_hash}}
   end
   ##########signup related
