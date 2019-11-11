@@ -1,8 +1,8 @@
 defmodule Twitter.Init do
 
   def main(num) do
-    #start the engine
-    {:ok, e_pid}=Twitter.Engine.start_link
+    #start the relay
+    {:ok, e_pid}=Twitter.Relay.start_link
 
     #start simulator
     {:ok, sim_pid}=Twitter.Simulator.start_link(e_pid)

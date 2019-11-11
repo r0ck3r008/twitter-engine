@@ -27,7 +27,7 @@ defmodule Twitter.User do
   #########signup related
   @impl true
   def handle_call({:signup, client_pid}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid}) do
-    u_hash=Twitter.Engine.Public.signup(e_pid, self())
+    u_hash=Twitter.Relay.Public.signup(e_pid, self())
     Agent.update(cli_agnt_pid, &(&1++[client_pid]))
     {:reply, u_hash, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
@@ -39,13 +39,13 @@ defmodule Twitter.User do
     {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
   ##########signup related
-  
+
   ##########follow related
   @impl true
   def handle_cast({:follow, cli_pid, to_hash}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
     state=Agent.get(cli_agnt_pid, fn(state)-> state end)
     if cli_pid in state do
-      Twitter.Engine.Public.follow(e_pid, u_hash, to_hash)
+      Twitter.Relay.Public.follow(e_pid, u_hash, to_hash)
     else
       Logger.warn("Follow request denied, client not logged in!")
     end
@@ -58,7 +58,7 @@ defmodule Twitter.User do
   def handle_call({:tweet, cli_pid, msg}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
     state=Agent.get(cli_agnt_pid, fn(state)-> state end)
     if cli_pid in state do
-      Twitter.Engine.Public.tweet(e_pid, u_hash, msg)
+      Twitter.Relay.Public.tweet(e_pid, u_hash, msg)
       {:reply, :ok, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
     else
       {:reply, :failed, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
@@ -81,7 +81,7 @@ defmodule Twitter.User do
   @impl true
   def handle_info({:new_tweet_tag, tag, msg}, {e_pid, nil, tweet_agnt_pid, u_hash}) do
     #send to followers
-    Twitter.Engine.Public.tweet(e_pid, tag, msg, :tag)
+    Twitter.Relay.Public.tweet(e_pid, tag, msg, :tag)
     #append to store
     state=Agent.get(tweet_agnt_pid, &Map.get(&1, tag))
     case state do

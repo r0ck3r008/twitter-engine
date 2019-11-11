@@ -1,4 +1,4 @@
-defmodule Twitter.Engine do
+defmodule Twitter.Relay do
 
   use GenServer
   require Logger
@@ -30,7 +30,7 @@ defmodule Twitter.Engine do
     {:reply, u_pid, {u_agnt_pid, fol_agnt_pid}}
   end
   ##########signup related
-  
+
   ##########follow related
   @impl true
   def handle_cast({:follow, u_hash, to_hash}, {u_agnt_pid, fol_agnt_pid}) do
@@ -49,7 +49,7 @@ defmodule Twitter.Engine do
   ###########tweet related
   @impl true
   def handle_cast({:tweet, tweet_info, msg}, state) do
-    Twitter.Engine.Helper.tweet_helper(tweet_info, msg, state)
+    Twitter.Relay.Helper.tweet_helper(tweet_info, msg, state)
     {:noreply, state}
   end
 
@@ -66,7 +66,7 @@ defmodule Twitter.Engine do
 
   @impl true
   def terminate(_, _) do
-    Logger.warn("Stopping the engine...")
+    Logger.warn("Stopping the relay...")
   end
 
 end

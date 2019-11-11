@@ -23,11 +23,11 @@ defmodule Twitter.Client do
 
   @impl true
   def handle_cast({:login, u_hash, e_pid},  _) do
-    u_pid=Twitter.Engine.Public.login(e_pid, u_hash, self())
+    u_pid=Twitter.Relay.Public.login(e_pid, u_hash, self())
     {:noreply, {u_hash, u_pid, e_pid}}
   end
   ###########signup related
-  
+
   ###########follow related
   @impl true
   def handle_cast({:follow, to_hash}, {u_hash, u_pid, e_pid}) do

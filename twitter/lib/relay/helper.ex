@@ -1,4 +1,4 @@
-defmodule Twitter.Engine.Helper do
+defmodule Twitter.Relay.Helper do
 
   require Logger
 
@@ -57,7 +57,7 @@ defmodule Twitter.Engine.Helper do
     Logger.debug("Created new hash, #{tag}")
     {:ok, tag_pid}=Twitter.User.start_link(self(), tag)
     Agent.update(u_agnt_pid, &Map.put(&1, tag, tag_pid))
-    Twitter.Engine.Public.follow(self(), from_hash, tag)
+    Twitter.Relay.Public.follow(self(), from_hash, tag)
   end
 
 end

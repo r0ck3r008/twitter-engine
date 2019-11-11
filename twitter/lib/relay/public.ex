@@ -1,4 +1,4 @@
-defmodule Twitter.Engine.Public do
+defmodule Twitter.Relay.Public do
 
   def signup(of, u_pid) do
     GenServer.call(of, {:signup, u_pid})
@@ -14,7 +14,7 @@ defmodule Twitter.Engine.Public do
 
   #as user
   def tweet(of, u_hash, msg) do
-    tweet_info=[u_hash]++Twitter.Engine.Helper.parse_tweet(msg)
+    tweet_info=[u_hash]++Twitter.Relay.Helper.parse_tweet(msg)
     GenServer.cast(of, {:tweet, tweet_info, msg})
   end
   #as tag
