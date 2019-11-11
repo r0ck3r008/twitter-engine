@@ -5,42 +5,94 @@ defmodule Twitter.User do
 
   def start_link(e_pid) do
     {:ok, cli_agnt_pid}=Agent.start_link(fn-> [] end)
-    GenServer.start_link(__MODULE__, {e_pid, cli_agnt_pid})
+    {:ok, tweet_agnt_pid}=Agent.start_link(fn-> %{} end)
+    GenServer.start_link(__MODULE__, {e_pid, cli_agnt_pid, tweet_agnt_pid})
+  end
+  #as hash
+  def start_link(e_pid, u_hash) do
+    {:ok, tweet_agnt_pid}=Agent.start_link(fn-> %{} end)
+    GenServer.start_link(__MODULE__, {e_pid, nil, tweet_agnt_pid, u_hash})
   end
 
+  #as user init
   @impl true
-  def init(state) do
-    {:ok, state}
+  def init({e_pid, cli_agnt_pid, tweet_agnt_pid}) do
+    {:ok, {e_pid, cli_agnt_pid, tweet_agnt_pid}}
+  end
+  @impl true
+  def init({e_pid, nil, tweet_agnt_pid, u_hash}) do
+    {:ok, {e_pid, nil, tweet_agnt_pid, u_hash}}
   end
 
   #########signup related
   @impl true
-  def handle_call({:signup, client_pid}, _from, {e_pid, cli_agnt_pid}) do
+  def handle_call({:signup, client_pid}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid}) do
     u_hash=Twitter.Engine.Public.signup(e_pid, self())
     Agent.update(cli_agnt_pid, &(&1++[client_pid]))
-    {:reply, u_hash, {e_pid, cli_agnt_pid, u_hash}}
+    {:reply, u_hash, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
 
   @impl true
-  def handle_cast({:login, cli_pid}, {e_pid, cli_agnt_pid, u_hash}) do
+  def handle_cast({:login, cli_pid}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
     Agent.update(cli_agnt_pid, &(&1++[cli_pid]))
     Logger.debug("Login Success from client #{inspect cli_pid} to #{u_hash}")
-    {:noreply, {e_pid, cli_agnt_pid, u_hash}}
+    {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
   ##########signup related
   
   ##########follow related
   @impl true
-  def handle_cast({:follow, cli_pid, to_hash}, {e_pid, cli_agnt_pid, u_hash}) do
+  def handle_cast({:follow, cli_pid, to_hash}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
     state=Agent.get(cli_agnt_pid, fn(state)-> state end)
     if cli_pid in state do
       Twitter.Engine.Public.follow(e_pid, u_hash, to_hash)
     else
       Logger.warn("Follow request denied, client not logged in!")
     end
-    {:noreply, {e_pid, cli_agnt_pid, u_hash}}
+    {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
   ###########follow related
+
+  ###########tweet related
+  @impl true
+  def handle_call({:tweet, cli_pid, msg}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    state=Agent.get(cli_agnt_pid, fn(state)-> state end)
+    if cli_pid in state do
+      Twitter.Engine.Public.tweet(e_pid, u_hash, msg)
+      {:reply, :ok, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+    else
+      {:reply, :failed, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+    end
+  end
+
+  @impl true
+  def handle_info({:new_tweet, from_hash, msg}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    Logger.debug("#{u_hash}: new tweet received from #{from_hash}: #{msg}")
+    state=Agent.get(tweet_agnt_pid, &Map.get(&1, from_hash))
+    case state do
+      nil->
+        Agent.update(tweet_agnt_pid, &Map.put(&1, from_hash, [msg]))
+      _->
+        Agent.update(tweet_agnt_pid, &Map.put(&1, from_hash, state++[msg]))
+    end
+    {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+  end
+
+  @impl true
+  def handle_info({:new_tweet_tag, tag, msg}, {e_pid, nil, tweet_agnt_pid, u_hash}) do
+    #send to followers
+    Twitter.Engine.Public.tweet(e_pid, tag, msg, :tag)
+    #append to store
+    state=Agent.get(tweet_agnt_pid, &Map.get(&1, tag))
+    case state do
+      nil->
+        Agent.update(tweet_agnt_pid, &Map.put(&1, tag, [msg]))
+      _->
+        Agent.update(tweet_agnt_pid, &Map.put(&1, tag, state++[msg]))
+    end
+    {:noreply, {e_pid, nil, tweet_agnt_pid, u_hash}}
+  end
+  ###########tweet related
 
   @impl true
   def terminate(_, _) do

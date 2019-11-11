@@ -46,6 +46,24 @@ defmodule Twitter.Engine do
   end
   ###########follow related
 
+  ###########tweet related
+  @impl true
+  def handle_cast({:tweet, tweet_info, msg}, state) do
+    Twitter.Engine.Helper.tweet_helper(tweet_info, msg, state)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast({:tweet_tag, tag, msg}, {u_agnt_pid, fol_agnt_pid}) do
+    followers=Agent.get(fol_agnt_pid, &Map.get(&1, tag))
+    for follower<-followers do
+      u_pid=Agent.get(u_agnt_pid, &Map.get(&1, follower))
+      send(u_pid, {:new_tweet, tag, msg})
+    end
+    {:noreply, {u_agnt_pid, fol_agnt_pid}}
+  end
+  ###########tweet related
+
   @impl true
   def terminate(_, _) do
     Logger.warn("Stopping the engine...")

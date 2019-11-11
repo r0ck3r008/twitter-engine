@@ -36,6 +36,19 @@ defmodule Twitter.Client do
   end
   ###########follow related
 
+  ###########tweet related
+  @impl true
+  def handle_cast({:tweet, msg}, {u_hash, u_pid, e_pid}) do
+    case Twitter.User.Public.tweet(u_pid, self(), msg) do
+      :ok->
+        Logger.info("Tweet #{msg} sent as user #{u_hash}")
+      _->
+        Logger.error("Tweet #{msg} failed to send as user #{u_hash}")
+    end
+    {:noreply, {u_hash, u_pid, e_pid}}
+  end
+  ###########tweet related
+
   @impl true
   def terminate(_, _) do
     Logger.debug("Terminating the client...")

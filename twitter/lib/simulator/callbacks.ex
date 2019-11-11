@@ -39,6 +39,14 @@ defmodule Twitter.Simulator do
     {:noreply, {e_pid, u_list}}
   end
   ###########follow related
+  
+  ###########tweet related
+  @impl true
+  def handle_cast({:tweet, cli_pid, msg}, {e_pid, u_list}) do
+    Twitter.Client.Public.tweet(cli_pid, msg)
+    {:noreply, {e_pid, u_list}}
+  end
+  ############tweet related
 
   @impl true
   def terminate(_, _) do

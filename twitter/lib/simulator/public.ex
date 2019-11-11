@@ -25,4 +25,8 @@ defmodule Twitter.Simulator.Public do
     GenServer.cast(of, {:follow, client_pid, to_hash})
   end
 
+  def tweet(of, client_pid, msg) do
+    GenServer.cast(of, {:tweet, client_pid, msg})
+  end
+
 end
