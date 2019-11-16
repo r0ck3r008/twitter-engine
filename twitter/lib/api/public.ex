@@ -21,6 +21,11 @@ defmodule Twitter.Api.Public do
     client_pid
   end
 
+  def logout(cli_pid) do
+    Twitter.Client.Public.logout(cli_pid)
+    GenServer.stop(cli_pid, :normal)
+  end
+
   def follow(client_pid, to_hash) do
     Twitter.Client.Public.follow(client_pid, to_hash)
   end

@@ -26,6 +26,12 @@ defmodule Twitter.Client do
     u_pid=Twitter.Relay.Public.login(e_pid, u_hash, self())
     {:noreply, {u_hash, u_pid, e_pid}}
   end
+
+  @impl true
+  def handle_call(:logout, _from, {u_hash, u_pid, e_pid}) do
+    Twitter.User.Public.logout(u_pid, self())
+    {:reply, :ok, {u_hash, u_pid, e_pid}}
+  end
   ###########signup related
 
   ###########follow related

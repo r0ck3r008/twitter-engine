@@ -38,6 +38,13 @@ defmodule Twitter.User do
     Logger.debug("Login Success from client #{inspect cli_pid} to #{u_hash}")
     {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
+
+  @impl true
+  def handle_call({:logout, cli_pid}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    Agent.update(cli_agnt_pid, &(&1--[cli_pid]))
+    Logger.debug("Logout Success of #{inspect cli_pid} from #{u_hash}")
+    {:reply, :ok, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+  end
   ##########signup related
 
   ##########follow related

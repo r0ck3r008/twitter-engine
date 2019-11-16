@@ -35,7 +35,11 @@ defmodule Twitter.Init do
 
     #make the celeb tweet
     Twitter.Api.Public.tweet(celeb_cli,
-                "#hello everyone espicially @#{Enum.at(unames, Salty.Random.uniform(length(unames)-1))}, #YOLO!")
+      "#hello everyone espicially @#{Enum.at(unames, Salty.Random.uniform(length(unames)-1))}, #YOLO!")
+    :timer.sleep(3000)
+
+    #logout using newly created clients
+    for cli<-login_cli, do: Twitter.Api.Public.logout(cli)
 
     #wait for tasks to finish
     for task<-tasks, do: Task.await(task, :infinity)
