@@ -26,27 +26,11 @@ defmodule Twitter.Api do
   end
 
   @impl true
-  def handle_call({:login, client_pid, u_hash}, _from, {e_pid, u_list}) do
-    Twitter.Client.Public.login(client_pid, u_hash, e_pid)
-    {:reply, client_pid, {e_pid, u_list}}
+  def handle_cast({:login, cli_pid, u_hash}, {e_pid, u_list}) do
+    Twitter.Client.Public.login(cli_pid, u_hash, e_pid)
+    {:noreply, {e_pid, u_list}}
   end
   ###########signup related
-
-  ###########follow related
-  @impl true
-  def handle_cast({:follow, client_pid, to_hash}, {e_pid, u_list}) do
-    Twitter.Client.Public.follow(client_pid, to_hash)
-    {:noreply, {e_pid, u_list}}
-  end
-  ###########follow related
-
-  ###########tweet related
-  @impl true
-  def handle_cast({:tweet, cli_pid, msg}, {e_pid, u_list}) do
-    Twitter.Client.Public.tweet(cli_pid, msg)
-    {:noreply, {e_pid, u_list}}
-  end
-  ############tweet related
 
   @impl true
   def terminate(_, _) do

@@ -17,16 +17,16 @@ defmodule Twitter.Api.Public do
 
   def login(of, u_hash) do
     {:ok, client_pid}=Twitter.Client.start_link
-    GenServer.call(of, {:login, client_pid, u_hash})
+    GenServer.cast(of, {:login, client_pid, u_hash})
     client_pid
   end
 
-  def follow(of, client_pid, to_hash) do
-    GenServer.cast(of, {:follow, client_pid, to_hash})
+  def follow(client_pid, to_hash) do
+    Twitter.Client.Public.follow(client_pid, to_hash)
   end
 
-  def tweet(of, client_pid, msg) do
-    GenServer.cast(of, {:tweet, client_pid, msg})
+  def tweet(client_pid, msg) do
+    Twitter.Client.Public.tweet(client_pid, msg)
   end
 
 end
