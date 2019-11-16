@@ -1,4 +1,4 @@
-defmodule Twitter.Simulator.Public do
+defmodule Twitter.Api.Public do
 
   def hash_it(msg) do
     Salty.Hash.Sha256.hash(msg)

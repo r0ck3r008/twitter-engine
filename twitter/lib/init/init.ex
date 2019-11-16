@@ -5,7 +5,7 @@ defmodule Twitter.Init do
     {:ok, e_pid}=Twitter.Relay.start_link
 
     #start simulator
-    {:ok, sim_pid}=Twitter.Simulator.start_link(e_pid)
+    {:ok, sim_pid}=Twitter.Api.start_link(e_pid)
 
     #start testing
     api_tester(num, sim_pid)
@@ -20,10 +20,10 @@ defmodule Twitter.Init do
     :timer.sleep(3000)
 
     #fetch usernames
-    unames=Twitter.Simulator.Public.fetch_users(sim_pid)
+    unames=Twitter.Api.Public.fetch_users(sim_pid)
 
     #start logging in
-    login_cli=for uname<-unames, do: Twitter.Simulator.Public.login(sim_pid, uname)
+    login_cli=for uname<-unames, do: Twitter.Api.Public.login(sim_pid, uname)
     :timer.sleep(3000)
 
     #start random follow a celebrity
@@ -31,10 +31,10 @@ defmodule Twitter.Init do
     celeb_hash=Enum.at(unames, celeb_indx)
     celeb_cli=Enum.at(login_cli, celeb_indx)
     n_followers=Salty.Random.uniform(length(login_cli))-1
-    for x<-0..n_followers-1, do: Twitter.Simulator.Public.follow(sim_pid, Enum.at(login_cli, x), celeb_hash)
+    for x<-0..n_followers-1, do: Twitter.Api.Public.follow(sim_pid, Enum.at(login_cli, x), celeb_hash)
 
     #make the celeb tweet
-    Twitter.Simulator.Public.tweet(sim_pid, celeb_cli,
+    Twitter.Api.Public.tweet(sim_pid, celeb_cli,
                 "#hello everyone espicially @#{Enum.at(unames, Salty.Random.uniform(length(unames)-1))}, #YOLO!")
 
     #wait for tasks to finish
@@ -42,7 +42,7 @@ defmodule Twitter.Init do
   end
 
   def task_fn(client, sim_pid, 0) do
-    Twitter.Simulator.Public.signup(sim_pid, client)
+    Twitter.Api.Public.signup(sim_pid, client)
     task_fn(client, sim_pid, 1)
   end
   def task_fn(client, sim_pid, count) do

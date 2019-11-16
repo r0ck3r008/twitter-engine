@@ -1,4 +1,4 @@
-defmodule Twitter.Simulator do
+defmodule Twitter.Api do
 
   use GenServer
   require Logger
