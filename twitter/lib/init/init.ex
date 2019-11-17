@@ -40,7 +40,18 @@ defmodule Twitter.Init do
 
     #logout using newly created clients
     for cli<-login_cli, do: Twitter.Api.Public.logout(cli)
+    :timer.sleep(3000)
 
+    #make any celeb follower get tweets of him
+    #->login any client
+    cli_hash=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
+    cli_pid=Twitter.Api.Public.login(api_pid, cli_hash)
+    #->get tweets of celeb
+    IO.puts("tweets of celeb are: #{inspect Twitter.Api.Public.get_followed_tweets(cli_pid, celeb_hash)}")
+    #make celeb get his own tweets
+    #-> login celeb
+    celeb_pid=Twitter.Api.Public.login(api_pid, celeb_hash)
+    IO.puts("tweets of celeb(slef) are #{inspect Twitter.Api.Public.get_self_tweets(celeb_pid)}")
     #wait for tasks to finish
     for task<-tasks, do: Task.await(task, :infinity)
   end

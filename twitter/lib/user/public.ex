@@ -5,7 +5,7 @@ defmodule Twitter.User.Public do
   end
 
   def login(of, cli_pid) do
-    GenServer.cast(of, {:login, cli_pid})
+    GenServer.call(of, {:login, cli_pid})
   end
 
   def logout(of, cli_pid) do
@@ -18,6 +18,10 @@ defmodule Twitter.User.Public do
 
   def tweet(of, cli_pid, msg) do
     GenServer.call(of, {:tweet, cli_pid, msg})
+  end
+
+  def get_tweets(of) do
+    GenServer.call(of, :get_tweets)
   end
 
 end

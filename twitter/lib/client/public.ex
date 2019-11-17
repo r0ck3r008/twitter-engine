@@ -5,7 +5,7 @@ defmodule Twitter.Client.Public do
   end
 
   def login(of, u_hash, e_pid) do
-    GenServer.cast(of, {:login, u_hash, e_pid})
+    GenServer.call(of, {:login, u_hash, e_pid})
   end
 
   def logout(of) do
@@ -18,6 +18,13 @@ defmodule Twitter.Client.Public do
 
   def tweet(of, msg) do
     GenServer.cast(of, {:tweet, msg})
+  end
+
+  def get_tweets(of, fol_hash) do
+    GenServer.call(of, {:get_fol_tweets, fol_hash})
+  end
+  def get_tweets(of) do
+    GenServer.call(of, :get_tweets)
   end
 
 end

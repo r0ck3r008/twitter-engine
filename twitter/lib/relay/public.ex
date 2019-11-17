@@ -22,4 +22,8 @@ defmodule Twitter.Relay.Public do
     GenServer.cast(of, {:tweet_tag, u_hash, msg})
   end
 
+  def get_tweets(of, to_hash) do
+    GenServer.call(of, {:get_tweets, to_hash})
+  end
+
 end

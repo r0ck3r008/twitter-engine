@@ -33,10 +33,10 @@ defmodule Twitter.User do
   end
 
   @impl true
-  def handle_cast({:login, cli_pid}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+  def handle_call({:login, cli_pid}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
     Agent.update(cli_agnt_pid, &(&1++[cli_pid]))
     Logger.debug("Login Success from client #{inspect cli_pid} to #{u_hash}")
-    {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+    {:reply, self(), {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
 
   @impl true
@@ -100,6 +100,14 @@ defmodule Twitter.User do
     {:noreply, {e_pid, nil, tweet_agnt_pid, u_hash}}
   end
   ###########tweet related
+
+  ###########query related
+  @impl true
+  def handle_call(:get_tweets, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    tweets=Agent.get(tweet_agnt_pid, &Map.get(&1, u_hash))
+    {:reply, tweets, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+  end
+  ###########query related
 
   @impl true
   def terminate(_, _) do

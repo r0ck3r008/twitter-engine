@@ -26,9 +26,9 @@ defmodule Twitter.Api do
   end
 
   @impl true
-  def handle_cast({:login, cli_pid, u_hash}, {e_pid, u_list}) do
+  def handle_call({:login, cli_pid, u_hash}, _from, {e_pid, u_list}) do
     Twitter.Client.Public.login(cli_pid, u_hash, e_pid)
-    {:noreply, {e_pid, u_list}}
+    {:reply, :ok, {e_pid, u_list}}
   end
   ###########signup related
 

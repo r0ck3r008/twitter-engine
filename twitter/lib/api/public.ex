@@ -17,7 +17,7 @@ defmodule Twitter.Api.Public do
 
   def login(of, u_hash) do
     {:ok, client_pid}=Twitter.Client.start_link
-    GenServer.cast(of, {:login, client_pid, u_hash})
+    GenServer.call(of, {:login, client_pid, u_hash})
     client_pid
   end
 
@@ -26,12 +26,22 @@ defmodule Twitter.Api.Public do
     GenServer.stop(cli_pid, :normal)
   end
 
+  #works for both user and tag
   def follow(client_pid, to_hash) do
     Twitter.Client.Public.follow(client_pid, to_hash)
   end
 
   def tweet(client_pid, msg) do
     Twitter.Client.Public.tweet(client_pid, msg)
+  end
+
+  #serves both for users and hastags
+  def get_followed_tweets(cli_pid, followed_hash) do
+    Twitter.Client.Public.get_tweets(cli_pid, followed_hash)
+  end
+
+  def get_self_tweets(cli_pid) do
+    Twitter.Client.Public.get_tweets(cli_pid)
   end
 
 end

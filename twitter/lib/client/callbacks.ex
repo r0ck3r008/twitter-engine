@@ -22,9 +22,9 @@ defmodule Twitter.Client do
   end
 
   @impl true
-  def handle_cast({:login, u_hash, e_pid},  _) do
+  def handle_call({:login, u_hash, e_pid}, _from, _) do
     u_pid=Twitter.Relay.Public.login(e_pid, u_hash, self())
-    {:noreply, {u_hash, u_pid, e_pid}}
+    {:reply, :ok, {u_hash, u_pid, e_pid}}
   end
 
   @impl true
@@ -54,6 +54,20 @@ defmodule Twitter.Client do
     {:noreply, {u_hash, u_pid, e_pid}}
   end
   ###########tweet related
+
+  ###########query related
+  @impl true
+  def handle_call({:get_fol_tweets, fol_hash}, _from, {u_hash, u_pid, e_pid}) do
+    tweets=Twitter.Relay.Public.get_tweets(e_pid, fol_hash)
+    {:reply, tweets, {u_hash, u_pid, e_pid}}
+  end
+
+  @impl true
+  def handle_call(:get_tweets, _from, {u_hash, u_pid, e_pid}) do
+    tweets=Twitter.User.Public.get_tweets(u_pid)
+    {:reply, tweets, {u_hash, u_pid, e_pid}}
+  end
+  ###########query related
 
   @impl true
   def terminate(_, _) do

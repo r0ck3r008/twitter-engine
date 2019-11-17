@@ -64,6 +64,15 @@ defmodule Twitter.Relay do
   end
   ###########tweet related
 
+  ###########query related
+  @impl true
+  def handle_call({:get_tweets, fol_hash}, _from, {u_agnt_pid, fol_agnt_pid}) do
+    u_pid=Agent.get(u_agnt_pid, &Map.get(&1, fol_hash))
+    tweets=Twitter.User.Public.get_tweets(u_pid)
+    {:reply, tweets, {u_agnt_pid, fol_agnt_pid}}
+  end
+  ###########query related
+
   @impl true
   def terminate(_, _) do
     Logger.warn("Stopping the relay...")
