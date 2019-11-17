@@ -26,7 +26,7 @@ defmodule Twitter.Relay.Helper do
     followers=Agent.get(fol_agnt_pid, &Map.get(&1, from_hash))
     tags=Enum.at(tweet_info, 1)
     mentions=Enum.at(tweet_info, 2)
-    fwd_tweets(from_hash, Enum.uniq(followers++mentions), msg, u_agnt_pid, :users)
+    fwd_tweets(from_hash, Enum.uniq(followers++mentions++[from_hash]), msg, u_agnt_pid, :users)
     fwd_tweet(from_hash, tags, msg, u_agnt_pid, :tags)
   end
 
