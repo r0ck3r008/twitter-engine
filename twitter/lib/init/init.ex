@@ -53,6 +53,9 @@ defmodule Twitter.Init do
     #->fetch tweets
     fetch_tweets(celeb_pid)
 
+    #fetch users that follow celeb
+    IO.puts("#{celeb_hash} follows: #{inspect Twitter.Api.Public.fetch_followed(celeb_pid)}")
+
     #wait for tasks to finish
     for task<-tasks, do: Task.await(task, :infinity)
   end

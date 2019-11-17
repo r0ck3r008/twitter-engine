@@ -11,6 +11,10 @@ defmodule Twitter.Api.Public do
     GenServer.call(of, :fetch_users)
   end
 
+  def fetch_followed(cli_pid) do
+    Twitter.Client.Public.fetch_followed(cli_pid)
+  end
+
   def signup(of, client) do
     GenServer.cast(of, {:signup, client})
   end

@@ -16,6 +16,10 @@ defmodule Twitter.Client.Public do
     GenServer.cast(of, {:follow, to_hash})
   end
 
+  def fetch_followed(of) do
+    GenServer.call(of, :fetch_followed)
+  end
+
   def tweet(of, msg) do
     GenServer.cast(of, {:tweet, msg})
   end

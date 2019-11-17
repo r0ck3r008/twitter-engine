@@ -40,6 +40,12 @@ defmodule Twitter.Client do
     Twitter.User.Public.follow(u_pid, self(), to_hash)
     {:noreply, {u_hash, u_pid, e_pid}}
   end
+
+  @impl true
+  def handle_call(:fetch_followed, _from, {u_hash, u_pid, e_pid}) do
+    followed=Twitter.Relay.Public.fetch_followed(e_pid, u_hash)
+    {:reply, followed, {u_hash, u_pid, e_pid}}
+  end
   ###########follow related
 
   ###########tweet related
