@@ -24,6 +24,16 @@ defmodule Twitter.Relay do
   end
 
   @impl true
+  def handle_cast({:del_usr, u_hash}, {u_agnt_pid, fol_agnt_pid}) do
+    fol=Agent.get(fol_agnt_pid, &Map.get(&1, u_hash))
+    if fol != nil do
+      Agent.update(fol_agnt_pid, &Map.delete(&1, u_hash))
+    end
+    Agent.update(u_agnt_pid, &Map.delete(&1, u_hash))
+    {:noreply, {u_agnt_pid, fol_agnt_pid}}
+  end
+
+  @impl true
   def handle_call({:login, u_hash, cli_pid}, _from, {u_agnt_pid, fol_agnt_pid}) do
     u_pid=Agent.get(u_agnt_pid, &Map.get(&1, u_hash))
     Twitter.User.Public.login(u_pid, cli_pid)

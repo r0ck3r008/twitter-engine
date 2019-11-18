@@ -33,6 +33,12 @@ defmodule Twitter.User do
   end
 
   @impl true
+  def handle_cast(:del_usr, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    Twitter.Relay.Public.delete_user(e_pid, u_hash)
+    {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+  end
+
+  @impl true
   def handle_call({:login, cli_pid}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
     Agent.update(cli_agnt_pid, &(&1++[cli_pid]))
     Logger.debug("Login Success from client #{inspect cli_pid} to #{u_hash}")

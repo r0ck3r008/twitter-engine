@@ -4,6 +4,10 @@ defmodule Twitter.User.Public do
     GenServer.call(of, {:signup, client_pid})
   end
 
+  def delete_user(of) do
+    GenServer.cast(of, :del_usr)
+  end
+
   def login(of, cli_pid) do
     GenServer.call(of, {:login, cli_pid})
   end

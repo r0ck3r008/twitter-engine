@@ -21,6 +21,10 @@ defmodule Twitter.Api.Public do
     GenServer.cast(of, {:signup, client})
   end
 
+  def delete_user(of, client_pid) do
+    GenServer.cast(of, {:del_usr, client_pid})
+  end
+
   def login(of, u_hash) do
     {:ok, client_pid}=Twitter.Client.start_link
     GenServer.call(of, {:login, client_pid, u_hash})

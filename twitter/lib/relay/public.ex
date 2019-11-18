@@ -4,6 +4,10 @@ defmodule Twitter.Relay.Public do
     GenServer.call(of, {:signup, u_pid})
   end
 
+  def delete_user(of, u_hash) do
+    GenServer.cast(of, {:del_usr, u_hash})
+  end
+
   def login(of, u_hash, cli_pid) do
     GenServer.call(of, {:login, u_hash, cli_pid})
   end

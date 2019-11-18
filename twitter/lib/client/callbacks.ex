@@ -22,6 +22,13 @@ defmodule Twitter.Client do
   end
 
   @impl true
+  def handle_call(:del_usr, _from, {u_hash, u_pid, e_pid}) do
+    Twitter.User.Public.delete_user(u_pid)
+    GenServer.stop(u_pid, :normal)
+    {:reply, u_hash, {u_hash, u_pid, e_pid}}
+  end
+
+  @impl true
   def handle_call({:login, u_hash, e_pid}, _from, _) do
     u_pid=Twitter.Relay.Public.login(e_pid, u_hash, self())
     {:reply, :ok, {u_hash, u_pid, e_pid}}

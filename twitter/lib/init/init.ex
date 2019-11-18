@@ -39,7 +39,7 @@ defmodule Twitter.Init do
     #:timer.sleep(3000)
 
     #logout using newly created clients
-    #for cli<-login_cli, do: Twitter.Api.Public.logout(cli)
+    for cli<-login_cli, do: Twitter.Api.Public.logout(cli)
 
     :timer.sleep(3000)
     #make any celeb follower get tweets of him
@@ -51,6 +51,9 @@ defmodule Twitter.Init do
 
     #Populate celeb's timeline
     IO.puts("#{celeb_hash}'s timeline: #{inspect Twitter.Api.Public.populate_timeline(celeb_pid)}")
+
+    #delete a random user
+    Twitter.Api.Public.delete_user(api_pid, cli_pid)
 
     #wait for tasks to finish
     for task<-tasks, do: Task.await(task, :infinity)

@@ -26,6 +26,14 @@ defmodule Twitter.Api do
   end
 
   @impl true
+  def handle_cast({:del_usr, cli_pid}, {e_pid, u_list}) do
+    u_hash=Twitter.Client.Public.delete_user(cli_pid)
+    Logger.debug("Deleted user #{u_hash}")
+    GenServer.stop(cli_pid, :normal)
+    {:noreply, {e_pid, u_list--[u_hash]}}
+  end
+
+  @impl true
   def handle_call({:login, cli_pid, u_hash}, _from, {e_pid, u_list}) do
     Twitter.Client.Public.login(cli_pid, u_hash, e_pid)
     {:reply, :ok, {e_pid, u_list}}
