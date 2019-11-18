@@ -28,6 +28,11 @@ defmodule Twitter.Client.Public do
     GenServer.cast(of, {:tweet, msg})
   end
 
+  def retweet(of, from_hash, msg) do
+    GenServer.cast(of, {:retweet_notif, from_hash, msg})
+    tweet(of, "Retweet: " <> msg)
+  end
+
   def get_tweets(of, fol_hash) do
     GenServer.call(of, {:get_fol_tweets, fol_hash})
   end

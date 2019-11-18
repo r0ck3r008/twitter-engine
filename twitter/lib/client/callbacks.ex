@@ -66,6 +66,18 @@ defmodule Twitter.Client do
     Logger.debug("[#{u_hash}] Received a new tweet from #{from_hash}: #{msg}")
     {:noreply, {u_hash, u_pid, e_pid}}
   end
+
+  @impl true
+  def handle_cast({:retweet_notif, from_hash, msg}, {u_hash, u_pid, e_pid}) do
+    Twitter.User.Public.retweet(u_pid, from_hash, msg)
+    {:noreply, {u_hash, u_pid, e_pid}}
+  end
+
+  @impl true
+  def handle_info({:new_retweet, msg}, {u_hash, u_pid, e_pid}) do
+    Logger.debug("#{msg}")
+    {:noreply, {u_hash, u_pid, e_pid}}
+  end
   ###########tweet related
 
   ###########query related

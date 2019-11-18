@@ -64,6 +64,13 @@ defmodule Twitter.Relay do
   end
 
   @impl true
+  def handle_cast({:retweet_notif, of_hash, to_hash, msg}, {u_agnt_pid, fol_agnt_pid}) do
+    to_pid=Agent.get(u_agnt_pid, &Map.get(&1, to_hash))
+    send(to_pid, {:retweet_new, of_hash, msg})
+    {:noreply, {u_agnt_pid, fol_agnt_pid}}
+  end
+
+  @impl true
   def handle_cast({:tweet_tag, tag, msg}, {u_agnt_pid, fol_agnt_pid}) do
     followers=Agent.get(fol_agnt_pid, &Map.get(&1, tag))
     for follower<-followers do

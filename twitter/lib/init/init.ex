@@ -34,8 +34,8 @@ defmodule Twitter.Init do
     for x<-0..n_followers-1, do: Twitter.Api.Public.follow(Enum.at(login_cli, x), celeb_hash)
 
     #make the celeb tweet
-    Twitter.Api.Public.tweet(celeb_cli,
-      "#hello everyone espicially @#{Enum.at(unames, Salty.Random.uniform(length(unames)-1))}, #YOLO!")
+    msg="#hello everyone espicially @#{Enum.at(unames, Salty.Random.uniform(length(unames)-1))}, #YOLO!"
+    Twitter.Api.Public.tweet(celeb_cli, msg)
     #:timer.sleep(3000)
 
     #logout using newly created clients
@@ -51,6 +51,9 @@ defmodule Twitter.Init do
 
     #Populate celeb's timeline
     IO.puts("#{celeb_hash}'s timeline: #{inspect Twitter.Api.Public.populate_timeline(celeb_pid)}")
+
+    #retweet from a random user
+    Twitter.Api.Public.retweet(cli_pid, celeb_hash, msg)
 
     #delete a random user
     Twitter.Api.Public.delete_user(api_pid, cli_pid)

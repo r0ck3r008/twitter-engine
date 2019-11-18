@@ -79,6 +79,18 @@ defmodule Twitter.User do
   end
 
   @impl true
+  def handle_cast({:retweet_notif, from_hash, msg}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    Twitter.Relay.Public.retweet(e_pid, u_hash, from_hash, msg)
+    {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+  end
+
+  @impl true
+  def handle_info({:retweet_new, from_hash, msg}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    Twitter.User.Helper.fwd_tweets("#{from_hash} Retweeted: " <> msg, cli_agnt_pid)
+    {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+  end
+
+  @impl true
   def handle_info({:new_tweet, from_hash, msg}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
     Twitter.User.Helper.fwd_tweets(from_hash, msg, cli_agnt_pid)
     state=Agent.get(tweet_agnt_pid, &Map.get(&1, from_hash))

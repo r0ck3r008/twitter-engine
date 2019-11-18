@@ -45,6 +45,10 @@ defmodule Twitter.Api.Public do
     Twitter.Client.Public.tweet(client_pid, msg)
   end
 
+  def retweet(client_pid, from_hash, msg) do
+    Twitter.Client.Public.retweet(client_pid, from_hash, msg)
+  end
+
   #serves both for users and hastags
   def get_followed_tweets(cli_pid, followed_hash) do
     Twitter.Client.Public.get_tweets(cli_pid, followed_hash)

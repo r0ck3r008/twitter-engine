@@ -24,6 +24,10 @@ defmodule Twitter.User.Public do
     GenServer.call(of, {:tweet, cli_pid, msg})
   end
 
+  def retweet(of, from_hash, msg) do
+    GenServer.cast(of, {:retweet_notif, from_hash, msg})
+  end
+
   def get_tweets(of) do
     GenServer.call(of, :get_tweets)
   end
