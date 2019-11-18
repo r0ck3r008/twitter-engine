@@ -41,23 +41,23 @@ defmodule Twitter.Relay.Helper do
   def fwd_tweet(from_hash, tags, msg, u_agnt_pid, :tags) do
     for tag<-tags do
       tag_pid=Agent.get(u_agnt_pid, &Map.get(&1, tag))
-      case tag_pid do
-        nil->
-          #make new tag
-          make_new_tag(tag, from_hash, u_agnt_pid)
-        _->
-          #          Logger.debug("tag pid is #{inspect tag_pid}")
-          send(tag_pid, {:new_tweet_tag, from_hash, msg})
+      if tag_pid==nil do
+        #make new tag
+        make_new_tag(tag, from_hash, u_agnt_pid)
+        |> send({:new_tweet_tag, from_hash, msg})
+      else
+        send(tag_pid, {:new_tweet_tag, from_hash, msg})
       end
     end
   end
 
   def make_new_tag(tag, from_hash, u_agnt_pid) do
     #form the user
-    Logger.debug("Created new hash, #{tag}")
     {:ok, tag_pid}=Twitter.User.start_link(self(), tag)
+    Logger.debug("Created new hash, #{tag} and pid #{inspect tag_pid}")
     Agent.update(u_agnt_pid, &Map.put(&1, tag, tag_pid))
     Twitter.Relay.Public.follow(self(), from_hash, tag)
+    tag_pid
   end
 
 end
