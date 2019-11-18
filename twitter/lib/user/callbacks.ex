@@ -88,14 +88,14 @@ defmodule Twitter.User do
   @impl true
   def handle_info({:new_tweet_tag, tag, msg}, {e_pid, nil, tweet_agnt_pid, u_hash}) do
     #send to followers
-    Twitter.Relay.Public.tweet(e_pid, tag, msg, :tag)
+    #Twitter.Relay.Public.tweet(e_pid, tag, msg, :tag)
     #append to store
-    state=Agent.get(tweet_agnt_pid, &Map.get(&1, tag))
+    state=Agent.get(tweet_agnt_pid, &Map.get(&1, u_hash))
     case state do
       nil->
-        Agent.update(tweet_agnt_pid, &Map.put(&1, tag, [msg]))
+        Agent.update(tweet_agnt_pid, &Map.put(&1, u_hash, [msg]))
       _->
-        Agent.update(tweet_agnt_pid, &Map.put(&1, tag, state++[msg]))
+        Agent.update(tweet_agnt_pid, &Map.put(&1, u_hash, state++[msg]))
     end
     {:noreply, {e_pid, nil, tweet_agnt_pid, u_hash}}
   end

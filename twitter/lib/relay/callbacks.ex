@@ -44,13 +44,6 @@ defmodule Twitter.Relay do
     Logger.debug("Follow success from #{u_hash} to #{to_hash}")
     {:noreply, {u_agnt_pid, fol_agnt_pid}}
   end
-
-  @impl true
-  def handle_call({:fetch_followed, u_hash}, _from, {u_agnt_pid, fol_agnt_pid}) do
-    state=Agent.get(fol_agnt_pid, fn(state)->state end)
-    followed=Enum.map(state, fn({fol_hash, fol_list})-> if u_hash in fol_list, do: fol_hash end)
-    {:reply, followed, {u_agnt_pid, fol_agnt_pid}}
-  end
   ###########follow related
 
   ###########tweet related
@@ -64,7 +57,7 @@ defmodule Twitter.Relay do
   def handle_cast({:tweet_tag, tag, msg}, {u_agnt_pid, fol_agnt_pid}) do
     followers=Agent.get(fol_agnt_pid, &Map.get(&1, tag))
     for follower<-followers do
-      u_pid=Enum.uniq(Agent.get(u_agnt_pid, &Map.get(&1, follower)))--[nil]
+      u_pid=Agent.get(u_agnt_pid, &Map.get(&1, follower))
       send(u_pid, {:new_tweet, tag, msg})
     end
     {:noreply, {u_agnt_pid, fol_agnt_pid}}
@@ -77,6 +70,13 @@ defmodule Twitter.Relay do
     u_pid=Agent.get(u_agnt_pid, &Map.get(&1, fol_hash))
     tweets=Twitter.User.Public.get_tweets(u_pid)
     {:reply, tweets, {u_agnt_pid, fol_agnt_pid}}
+  end
+
+  @impl true
+  def handle_call({:fetch_followed, u_hash}, _from, {u_agnt_pid, fol_agnt_pid}) do
+    state=Agent.get(fol_agnt_pid, fn(state)->state end)
+    followed=Enum.map(state, fn({fol_hash, fol_list})-> if u_hash in fol_list, do: fol_hash end)
+    {:reply, Enum.uniq(followed)--[nil], {u_agnt_pid, fol_agnt_pid}}
   end
   ###########query related
 

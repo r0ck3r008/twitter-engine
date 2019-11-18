@@ -1,5 +1,7 @@
 defmodule Twitter.Api.Public do
 
+  require Logger
+
   def hash_it(msg) do
     Salty.Hash.Sha256.hash(msg)
     |> elem(1)
@@ -46,6 +48,12 @@ defmodule Twitter.Api.Public do
 
   def get_self_tweets(cli_pid) do
     Twitter.Client.Public.get_tweets(cli_pid)
+  end
+
+  def populate_timeline(cli_pid) do
+    followed=fetch_followed(cli_pid)
+    Logger.debug("Followed are: #{inspect followed}")
+    for f<-followed, do: get_followed_tweets(cli_pid, f)
   end
 
 end
