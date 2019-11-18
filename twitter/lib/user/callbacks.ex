@@ -80,7 +80,7 @@ defmodule Twitter.User do
 
   @impl true
   def handle_info({:new_tweet, from_hash, msg}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
-    Logger.debug("#{u_hash}: new tweet received from #{from_hash}: #{msg}")
+    Twitter.User.Helper.fwd_tweets(from_hash, msg, cli_agnt_pid)
     state=Agent.get(tweet_agnt_pid, &Map.get(&1, from_hash))
     case state do
       nil->

@@ -60,6 +60,12 @@ defmodule Twitter.Client do
     end
     {:noreply, {u_hash, u_pid, e_pid}}
   end
+
+  @impl true
+  def handle_info({:new_tweet, from_hash, msg}, {u_hash, u_pid, e_pid}) do
+    Logger.debug("[#{u_hash}] Received a new tweet from #{from_hash}: #{msg}")
+    {:noreply, {u_hash, u_pid, e_pid}}
+  end
   ###########tweet related
 
   ###########query related
