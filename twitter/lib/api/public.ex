@@ -54,6 +54,7 @@ defmodule Twitter.Api.Public do
     Twitter.Client.Public.get_tweets(cli_pid)
   end
 
+  #works only for users, obvio
   def populate_timeline(cli_pid) do
     followed=fetch_followed(cli_pid)
     Logger.debug("Followed are: #{inspect followed}")
