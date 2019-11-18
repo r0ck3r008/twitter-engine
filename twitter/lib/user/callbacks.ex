@@ -86,9 +86,9 @@ defmodule Twitter.User do
   end
 
   @impl true
-  def handle_info({:new_tweet_tag, tag, msg}, {e_pid, nil, tweet_agnt_pid, u_hash}) do
-    #send to followers
-    #Twitter.Relay.Public.tweet(e_pid, tag, msg, :tag)
+  def handle_info({:new_tweet_tag, msg}, {e_pid, nil, tweet_agnt_pid, u_hash}) do
+    #send to subscribers
+    Twitter.Relay.Public.tweet(e_pid, u_hash, msg, :tag)
     #append to store
     state=Agent.get(tweet_agnt_pid, &Map.get(&1, u_hash))
     case state do

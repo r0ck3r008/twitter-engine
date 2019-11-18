@@ -44,9 +44,9 @@ defmodule Twitter.Relay.Helper do
       if tag_pid==nil do
         #make new tag
         make_new_tag(tag, from_hash, u_agnt_pid)
-        |> send({:new_tweet_tag, from_hash, msg})
+        |> send({:new_tweet_tag, msg})
       else
-        send(tag_pid, {:new_tweet_tag, from_hash, msg})
+        send(tag_pid, {:new_tweet_tag, msg})
       end
     end
   end
