@@ -34,7 +34,8 @@ defmodule Twitter.Init do
     for x<-0..n_followers-1, do: Twitter.Api.Public.follow(Enum.at(login_cli, x), celeb_hash)
 
     #make the celeb tweet
-    msg="#hello everyone espicially @#{Enum.at(unames, Salty.Random.uniform(length(unames)-1))}, #YOLO!"
+    mentioned_hash=Enum.at(unames, Salty.Random.uniform(length(unames)-1))
+    msg="#hello everyone espicially @#{mentioned_hash}, #YOLO!"
     Twitter.Api.Public.tweet(celeb_cli, msg)
     #:timer.sleep(3000)
 
@@ -57,6 +58,11 @@ defmodule Twitter.Init do
 
     #delete a random user
     Twitter.Api.Public.delete_user(api_pid, cli_pid)
+
+    #fetch my mentions
+    mentioned_pid=Twitter.Api.Public.login(api_pid, mentioned_hash)
+    mentioned_tweets=Twitter.Api.Public.get_my_mentions(mentioned_pid)
+    IO.puts("Tweets #{mentioned_hash} is mentioned in are: #{inspect mentioned_tweets}")
 
     #wait for tasks to finish
     for task<-tasks, do: Task.await(task, :infinity)

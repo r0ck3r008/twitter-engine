@@ -125,6 +125,13 @@ defmodule Twitter.User do
     tweets=Agent.get(tweet_agnt_pid, &Map.get(&1, u_hash))
     {:reply, tweets, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
+
+  @impl true
+  def handle_call(:get_mentions, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    state=Agent.get(tweet_agnt_pid, fn(state)-> state end)
+    tweets=Twitter.User.Helper.parse_tweets(state, u_hash)
+    {:reply, tweets, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+  end
   ###########query related
 
   @impl true

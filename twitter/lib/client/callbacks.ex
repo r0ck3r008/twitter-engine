@@ -99,6 +99,11 @@ defmodule Twitter.Client do
     {:reply, followed, {u_hash, u_pid, e_pid}}
   end
 
+  @impl true
+  def handle_call(:get_mentions, _from, {u_hash, u_pid, e_pid}) do
+    tweets=Twitter.User.Public.get_my_mentions(u_pid)
+    {:reply, tweets, {u_hash, u_pid, e_pid}}
+  end
   ###########query related
 
   @impl true

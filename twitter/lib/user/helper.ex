@@ -13,4 +13,19 @@ defmodule Twitter.User.Helper do
     end
   end
 
+  def parse_tweets(state, u_hash) do
+    mentioned_in=for {_, tweets}<-state do
+      for tweet<-tweets do
+        mention=Regex.match?(~r/@#{u_hash}/, tweet)
+        case mention do
+          false->
+            nil
+          true->
+            tweet
+        end
+      end
+    end
+    Enum.uniq(List.flatten(mentioned_in))--[nil]
+  end
+
 end

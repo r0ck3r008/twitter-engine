@@ -32,4 +32,8 @@ defmodule Twitter.User.Public do
     GenServer.call(of, :get_tweets)
   end
 
+  def get_my_mentions(of) do
+    GenServer.call(of, :get_mentions)
+  end
+
 end
