@@ -26,11 +26,11 @@ defmodule Twitter.Api do
   end
 
   @impl true
-  def handle_cast({:del_usr, cli_pid}, {e_pid, u_list}) do
+  def handle_call({:del_usr, cli_pid}, _from, {e_pid, u_list}) do
     u_hash=Twitter.Client.Public.delete_user(cli_pid)
     Logger.debug("Deleted user #{u_hash}")
     GenServer.stop(cli_pid, :normal)
-    {:noreply, {e_pid, u_list--[u_hash]}}
+    {:reply, :ok, {e_pid, u_list--[u_hash]}}
   end
 
   @impl true
@@ -44,9 +44,9 @@ defmodule Twitter.Api do
   @impl true
   def handle_call({:user?, u_hash}, _from, {e_pid, u_list}) do
     if u_hash in u_list do
-      {:reply, true, {e_pid, u_hash}}
+      {:reply, true, {e_pid, u_list}}
     else
-      {:reply, false, {e_pid, u_hash}}
+      {:reply, false, {e_pid, u_list}}
     end
   end
 
