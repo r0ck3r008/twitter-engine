@@ -6,9 +6,9 @@ defmodule Twitter.Test do
     {_e_pid, api_pid}=Twitter.Init.main(1000)
     {:ok, cli_pid}=Twitter.Client.start_link
     u_hash=Twitter.Api.Public.signup(api_pid, cli_pid)
-    assert Twitter.Api.Public.user?(api_pid, u_hash)
+    assert Twitter.Api.Public.user?(api_pid, u_hash)==true
     Twitter.Api.Public.delete_user(api_pid, cli_pid)
-    refute Twitter.Api.Public.user?(api_pid, u_hash)
+    refute Twitter.Api.Public.user?(api_pid, u_hash)==true
     #TODO add a way to end the netowrk gracefully
   end
 
@@ -17,9 +17,9 @@ defmodule Twitter.Test do
     unames=Twitter.Api.Public.fetch_users(api_pid)
     rand_user=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
     cli_pid=Twitter.Api.Public.login(api_pid, rand_user)
-    assert Twitter.Api.Public.logged_in?(cli_pid)
+    assert Twitter.Api.Public.logged_in?(cli_pid)==true
     Twitter.Api.Public.logout(cli_pid)
-    refute Twitter.Api.Public.logged_in?(cli_pid)
+    refute Twitter.Api.Public.logged_in?(cli_pid)==true
   end
 
   test "Make a followed and a follower" do
@@ -29,7 +29,7 @@ defmodule Twitter.Test do
     rand_follower=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
     cli_pid=Twitter.Api.Public.login(api_pid, rand_follower)
     Twitter.Api.Public.follow(cli_pid, rand_followed)
-    assert Twitter.Api.Public.following?(api_pid, cli_pid, rand_followed)
+    assert Twitter.Api.Public.following?(api_pid, cli_pid, rand_followed)==true
   end
 
   """
