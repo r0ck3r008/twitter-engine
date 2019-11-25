@@ -17,9 +17,7 @@ defmodule Twitter.Init do
     clients=for _x<-0..num-1, do: Twitter.Client.start_link
 
     #start client signup process
-    tasks=for {_, client}<-clients, do: Twitter.Api.Public.signup(api_pid, client)
-
-    #    for task<-tasks, do: Task.await(task, :infinity)
+    for {_, client}<-clients, do: Twitter.Api.Public.signup(api_pid, client)
   end
 
   def api_tester(num, api_pid) do
