@@ -73,4 +73,9 @@ defmodule Twitter.Api.Public do
   def user?(of, u_hash) do
     GenServer.call(of, {:user?, u_hash})
   end
+
+  def logged_in?(cli_pid) do
+    Twitter.Client.Public.logged_in?(cli_pid)
+  end
+
 end

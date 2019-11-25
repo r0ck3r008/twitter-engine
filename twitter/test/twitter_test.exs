@@ -13,7 +13,11 @@ defmodule Twitter.Test do
 
   #login to an existing user
   test "Login to existing user" do
-
+    {_e_pid, api_pid}=Twitter.Init.main(1000)
+    unames=Twitter.Api.Public.fetch_users(api_pid)
+    rand_user=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
+    cli_pid=Twitter.Api.Public.login(api_pid, rand_user)
+    assert Twitter.Api.Public.logged_in?(cli_pid)==true
   end
 
   """

@@ -44,4 +44,9 @@ defmodule Twitter.Client.Public do
     GenServer.call(of, :get_mentions)
   end
 
+  ##############testing related
+  def logged_in?(of) do
+    GenServer.call(of, :logged_in?)
+  end
+
 end

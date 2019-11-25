@@ -106,6 +106,15 @@ defmodule Twitter.Client do
   end
   ###########query related
 
+  ###########testing related
+  @impl true
+  def handle_call(:logged_in?, _from, {u_hash, u_pid, e_pid}) do
+    {:reply,
+      Twitter.User.Public.logged_in?(u_pid, self()),
+      {u_hash, u_pid, e_pid}
+    }
+  end
+
   @impl true
   def terminate(_, _) do
     Logger.debug("Terminating the client...")

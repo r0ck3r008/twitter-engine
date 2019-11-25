@@ -134,6 +134,17 @@ defmodule Twitter.User do
   end
   ###########query related
 
+  ###########testing related
+  @impl true
+  def handle_call({:logged_in?, cli_pid}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+    state=Agent.get(cli_agnt_pid, fn(state)->state end)
+    if cli_pid in state do
+      {:reply, true, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+    else
+      {:reply, false, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
+    end
+  end
+
   @impl true
   def terminate(_, _) do
     Logger.debug("Terminating the user...")
