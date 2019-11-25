@@ -13,7 +13,7 @@ defmodule Twitter.Relay.Public do
   end
 
   def follow(of, u_hash, to_hash) do
-    GenServer.cast(of, {:follow, u_hash, to_hash})
+    GenServer.call(of, {:follow, u_hash, to_hash})
   end
 
   def fetch_followed(of, u_hash) do

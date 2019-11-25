@@ -22,8 +22,14 @@ defmodule Twitter.Test do
     refute Twitter.Api.Public.logged_in?(cli_pid)
   end
 
-  test "Make a celeb" do
-
+  test "Make a followed and a follower" do
+    {_e_pid, api_pid}=Twitter.Init.main(1000)
+    unames=Twitter.Api.Public.fetch_users(api_pid)
+    rand_followed=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
+    rand_follower=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
+    cli_pid=Twitter.Api.Public.login(api_pid, rand_follower)
+    Twitter.Api.Public.follow(cli_pid, rand_followed)
+    assert Twitter.Api.Public.following?(api_pid, cli_pid, rand_followed)
   end
 
   """

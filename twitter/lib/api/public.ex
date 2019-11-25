@@ -77,4 +77,13 @@ defmodule Twitter.Api.Public do
     Twitter.Client.Public.logged_in?(cli_pid)
   end
 
+  def following?(of, cli_pid, to_hash) do
+    followed=fetch_followed(cli_pid)
+    if to_hash in followed do
+      true
+    else
+      false
+    end
+  end
+
 end
