@@ -22,7 +22,7 @@ defmodule Twitter.Api.Public do
   end
 
   def delete_user(of, client_pid) do
-    GenServer.cast(of, {:del_usr, client_pid})
+    GenServer.call(of, {:del_usr, client_pid})
   end
 
   def login(of, u_hash) do
@@ -33,7 +33,6 @@ defmodule Twitter.Api.Public do
 
   def logout(cli_pid) do
     Twitter.Client.Public.logout(cli_pid)
-    GenServer.stop(cli_pid, :normal)
   end
 
   #works for both user and tag
