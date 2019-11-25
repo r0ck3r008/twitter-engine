@@ -18,7 +18,7 @@ defmodule Twitter.Api.Public do
   end
 
   def signup(of, client) do
-    GenServer.cast(of, {:signup, client})
+    GenServer.call(of, {:signup, client})
   end
 
   def delete_user(of, client_pid) do
@@ -69,4 +69,8 @@ defmodule Twitter.Api.Public do
     for f<-followed, do: get_followed_tweets(cli_pid, f)
   end
 
+  #testing related
+  def user?(of, u_hash) do
+    GenServer.call(of, {:user?, u_hash})
+  end
 end

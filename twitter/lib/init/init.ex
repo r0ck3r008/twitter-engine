@@ -8,17 +8,21 @@ defmodule Twitter.Init do
     {:ok, api_pid}=Twitter.Api.start_link(e_pid)
 
     #start testing
-    api_tester(num, api_pid)
+    start_network(num, api_pid)
+    {e_pid, api_pid}
   end
 
-  def api_tester(num, api_pid) do
+  def start_network(num, api_pid) do
     #start clients
     clients=for _x<-0..num-1, do: Twitter.Client.start_link
 
     #start client signup process
-    tasks=for {_, client}<-clients, do: Task.async(fn-> task_fn(client, api_pid, 0) end)
-    #    :timer.sleep(3000)
+    tasks=for {_, client}<-clients, do: Twitter.Api.Public.signup(api_pid, client)
 
+    #    for task<-tasks, do: Task.await(task, :infinity)
+  end
+
+  def api_tester(num, api_pid) do
     #fetch usernames
     unames=Twitter.Api.Public.fetch_users(api_pid)
 
@@ -63,9 +67,6 @@ defmodule Twitter.Init do
     mentioned_pid=Twitter.Api.Public.login(api_pid, mentioned_hash)
     mentioned_tweets=Twitter.Api.Public.get_my_mentions(mentioned_pid)
     IO.puts("Tweets #{mentioned_hash} is mentioned in are: #{inspect mentioned_tweets}")
-
-    #wait for tasks to finish
-    for task<-tasks, do: Task.await(task, :infinity)
   end
 
   def task_fn(client, api_pid, 0) do
