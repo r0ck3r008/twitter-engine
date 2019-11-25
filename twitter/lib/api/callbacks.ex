@@ -20,9 +20,9 @@ defmodule Twitter.Api do
 
   ##########signup related
   @impl true
-  def handle_cast({:signup, client_pid}, {e_pid, u_list}) do
+  def handle_call({:signup, client_pid}, _from, {e_pid, u_list}) do
     u_hash=Twitter.Client.Public.signup(client_pid, e_pid)
-    {:noreply, {e_pid, u_list++[u_hash]}}
+    {:reply, u_hash, {e_pid, u_list++[u_hash]}}
   end
 
   @impl true
@@ -39,6 +39,16 @@ defmodule Twitter.Api do
     {:reply, :ok, {e_pid, u_list}}
   end
   ###########signup related
+  
+  ###########test realted
+  @impl true
+  def handle_call({:user?, u_hash}, _from, {e_pid, u_list}) do
+    if u_hash in u_list do
+      {:reply, true, {e_pid, u_hash}}
+    else
+      {:reply, false, {e_pid, u_hash}}
+    end
+  end
 
   @impl true
   def terminate(_, _) do
