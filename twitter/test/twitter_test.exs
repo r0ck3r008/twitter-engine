@@ -108,4 +108,8 @@ defmodule Twitter.Test do
     assert Twitter.Api.Public.get_my_mentions(mention_pid2)==[msg]
   end
 
+  #TODO
+  #Live delivery of tweets, assert recv
+  #Retweets
+  #delete from followers if a user deleted account
 end
