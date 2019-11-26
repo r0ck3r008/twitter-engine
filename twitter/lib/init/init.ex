@@ -8,21 +8,39 @@ defmodule Twitter.Init do
     {:ok, api_pid}=Twitter.Api.start_link(e_pid)
 
     #start testing
-    api_tester(num, api_pid)
+    start_network(num, api_pid)
+    {e_pid, api_pid}
   end
 
-  def api_tester(num, api_pid) do
+  def start_network(num, api_pid) do
     #start clients
     clients=for _x<-0..num-1, do: Twitter.Client.start_link
 
     #start client signup process
-    tasks=for {_, client}<-clients, do: Task.async(fn-> task_fn(client, api_pid, 0) end)
-    #    :timer.sleep(3000)
+    for {_, client}<-clients, do: Twitter.Api.Public.signup(api_pid, client)
 
     #fetch usernames
     unames=Twitter.Api.Public.fetch_users(api_pid)
 
+    max_subscribers = 20
 
+    #start logging in
+    login_cli=for uname<-unames, do: Twitter.Api.Public.login(api_pid, uname)
+
+    #Zipf distribution of followers
+    Enum.reduce(unames, 1, fn x, acc ->
+      for y<-0..div(max_subscribers-1, acc), do: Twitter.Api.Public.follow(Enum.at(login_cli, y), x)
+      #for y<-0..div(max_subscribers-1, acc), do: Twitter.Api.Public.follow(Enum.random(login_cli), x)
+      acc+1
+      end
+    )
+
+
+  end
+
+  def api_tester(num, api_pid) do
+    #fetch usernames
+    unames=Twitter.Api.Public.fetch_users(api_pid)
 
     #start logging in
     login_cli=for uname<-unames, do: Twitter.Api.Public.login(api_pid, uname)
@@ -32,65 +50,39 @@ defmodule Twitter.Init do
     celeb_indx=Salty.Random.uniform(length(unames)-1)
     celeb_hash=Enum.at(unames, celeb_indx)
     celeb_cli=Enum.at(login_cli, celeb_indx)
-    #n_followers=Salty.Random.uniform(length(login_cli))-1
-
-    #Zipf distribution of followers
-    Enum.reduce(unames, 1, fn x, acc ->
-
-      for y<-0..div(max_subscribers-1, acc), do: Twitter.Api.Public.follow(Enum.at(login_cli, y), x)
-      acc+1
-      end
-    )
-
-    #for x<-0..n_followers-1, do: Twitter.Api.Public.follow(Enum.at(login_cli, x), celeb_hash)
+    n_followers=Salty.Random.uniform(length(login_cli))-1
+    for x<-0..n_followers-1, do: Twitter.Api.Public.follow(Enum.at(login_cli, x), celeb_hash)
 
     #make the celeb tweet
-    Twitter.Api.Public.tweet(celeb_cli,
-      "#hello everyone espicially @#{Enum.at(unames, Salty.Random.uniform(length(unames)-1))}, #YOLO!")
+    mentioned_hash=Enum.at(unames, Salty.Random.uniform(length(unames)-1))
+    msg="#hello everyone espicially @#{mentioned_hash}, #YOLO!"
+    Twitter.Api.Public.tweet(celeb_cli, msg)
     #:timer.sleep(3000)
 
     #logout using newly created clients
     for cli<-login_cli, do: Twitter.Api.Public.logout(cli)
 
+    :timer.sleep(3000)
     #make any celeb follower get tweets of him
     #->login any client
     cli_hash=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
     cli_pid=Twitter.Api.Public.login(api_pid, cli_hash)
-    #->get tweets of celeb
-    fetch_tweets(cli_pid, celeb_hash)
-    #make celeb get his own tweets
     #-> login celeb
     celeb_pid=Twitter.Api.Public.login(api_pid, celeb_hash)
-    #->fetch tweets
-    fetch_tweets(celeb_pid)
 
-    #fetch users that follow celeb
-    IO.puts("#{celeb_hash} follows: #{inspect Twitter.Api.Public.fetch_followed(celeb_pid)}")
+    #Populate celeb's timeline
+    IO.puts("#{celeb_hash}'s timeline: #{inspect Twitter.Api.Public.populate_timeline(celeb_pid)}")
 
-    #wait for tasks to finish
-    for task<-tasks, do: Task.await(task, :infinity)
-  end
+    #retweet from a random user
+    Twitter.Api.Public.retweet(cli_pid, celeb_hash, msg)
 
-  def fetch_tweets(cli_pid, celeb_hash) do
-    tweets=Twitter.Api.Public.get_followed_tweets(cli_pid, celeb_hash)
-    case tweets do
-      nil->
-        :timer.sleep(100)
-        fetch_tweets(cli_pid, celeb_hash)
-      _->
-        IO.puts("Tweetes of celeb are: #{inspect tweets}")
-    end
-  end
+    #delete a random user
+    Twitter.Api.Public.delete_user(api_pid, cli_pid)
 
-  def fetch_tweets(celeb_pid) do
-    tweets=Twitter.Api.Public.get_self_tweets(celeb_pid)
-    case tweets do
-      nil->
-        :timer.sleep(100)
-        fetch_tweets(celeb_pid)
-      _->
-        IO.puts("Tweets of celeb(self) are: #{inspect tweets}")
-    end
+    #fetch my mentions
+    mentioned_pid=Twitter.Api.Public.login(api_pid, mentioned_hash)
+    mentioned_tweets=Twitter.Api.Public.get_my_mentions(mentioned_pid)
+    IO.puts("Tweets #{mentioned_hash} is mentioned in are: #{inspect mentioned_tweets}")
   end
 
   def task_fn(client, api_pid, 0) do
