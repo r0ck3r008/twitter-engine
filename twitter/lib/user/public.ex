@@ -17,7 +17,7 @@ defmodule Twitter.User.Public do
   end
 
   def follow(of, cli_pid, to_hash) do
-    GenServer.call(of, {:follow, cli_pid, to_hash})
+    GenServer.cast(of, {:follow, cli_pid, to_hash})
   end
 
   def tweet(of, cli_pid, msg) do

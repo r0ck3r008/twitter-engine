@@ -29,13 +29,24 @@ defmodule Twitter.Test do
     rand_follower=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
     cli_pid=Twitter.Api.Public.login(api_pid, rand_follower)
     Twitter.Api.Public.follow(cli_pid, rand_followed)
-    assert Twitter.Api.Public.following?(api_pid, cli_pid, rand_followed)==true
+    #since follow is a cast request, time delay is introduced for it to reflect
+    :timer.sleep(100)
+    assert Twitter.Api.Public.following?(cli_pid, rand_followed)==true
   end
 
-  """
-  #pick a user and tweet with mention to another user and tags
-  test "Tweet test with mentions and tags" do
-
+  test "Tweet parse test" do
+    assert Twitter.Relay.Helper.parse_tweet("Hello first tweet")==[[], []]
+    assert Twitter.Relay.Helper.parse_tweet("#Hello first tweet, @me")==[["Hello"], ["me"]]
   end
-"""
+
+  test "Tweet/Retweet test" do
+    {_e_pid, api_pid}=Twitter.Init.main(1000)
+    unames=Twitter.Api.Public.fetch_users(api_pid)
+    cli_pid=Twitter.Api.Public.login(api_pid, Enum.random(unames))
+    Twitter.Api.Public.tweet(cli_pid, "Hello first tweet")
+    #since tweet is a cast request, they need time to be reflected on updation
+    :timer.sleep(100)
+    assert Twitter.Api.Public.get_self_tweets(cli_pid)==["Hello first tweet"]
+  end
+
 end

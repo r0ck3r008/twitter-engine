@@ -55,15 +55,14 @@ defmodule Twitter.User do
 
   ##########follow related
   @impl true
-  def handle_call({:follow, cli_pid, to_hash}, _from, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
+  def handle_cast({:follow, cli_pid, to_hash}, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}) do
     state=Agent.get(cli_agnt_pid, fn(state)-> state end)
     if cli_pid in state do
       Twitter.Relay.Public.follow(e_pid, u_hash, to_hash)  
-      {:reply, :ok, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
     else
       Logger.warn("Follow request denied, client not logged in!")
-      {:reply, :ok, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
     end
+    {:noreply, {e_pid, cli_agnt_pid, tweet_agnt_pid, u_hash}}
   end
   ###########follow related
 
