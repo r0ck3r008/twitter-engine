@@ -4,10 +4,6 @@ defmodule Twitter.Relay.Public do
     GenServer.call(of, {:signup, u_pid})
   end
 
-  def delete_user(of, u_hash) do
-    GenServer.cast(of, {:del_usr, u_hash})
-  end
-
   def login(of, u_hash, cli_pid) do
     GenServer.call(of, {:login, u_hash, cli_pid})
   end
@@ -20,6 +16,10 @@ defmodule Twitter.Relay.Public do
     GenServer.call(of, {:fetch_followed, u_hash})
   end
 
+  def fetch_fol_agnt_pid(of) do
+    GenServer.call(of, {:fetch_fol_agnt_pid})
+  end
+
   #as user
   def tweet(of, u_hash, msg) do
     tweet_info=[u_hash]++Twitter.Relay.Helper.parse_tweet(msg)
@@ -28,10 +28,6 @@ defmodule Twitter.Relay.Public do
   #as tag
   def tweet(of, u_hash, msg, :tag) do
     GenServer.cast(of, {:tweet_tag, u_hash, msg})
-  end
-
-  def retweet(of, of_hash, to_hash, msg) do
-    GenServer.cast(of, {:retweet_notif, of_hash, to_hash, msg})
   end
 
   def get_tweets(of, to_hash) do
