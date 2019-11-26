@@ -43,22 +43,38 @@ defmodule Twitter.Test do
     {_e_pid, api_pid}=Twitter.Init.main(1000)
     unames=Twitter.Api.Public.fetch_users(api_pid)
     cli_pid=Twitter.Api.Public.login(api_pid, Enum.random(unames))
-    Twitter.Api.Public.tweet(cli_pid, "Hello first tweet")
+    msg="Hello first tweet"
+    Twitter.Api.Public.tweet(cli_pid, msg)
     #since tweet is a cast request, they need time to be reflected on updation
     :timer.sleep(100)
-    assert Twitter.Api.Public.get_self_tweets(cli_pid)==["Hello first tweet"]
+    assert Twitter.Api.Public.get_self_tweets(cli_pid)==[msg]
   end
 
   test "Tweet test with hash" do
     {_e_pid, api_pid}=Twitter.Init.main(1000)
     unames=Twitter.Api.Public.fetch_users(api_pid)
     cli_pid=Twitter.Api.Public.login(api_pid, Enum.random(unames))
-    Twitter.Api.Public.tweet(cli_pid, "#Hello first tweet")
+    msg="#Hello first tweet"
+    Twitter.Api.Public.tweet(cli_pid, msg)
     #since tweet is a cast request, they need time to be reflected on updation
     :timer.sleep(100)
-    assert Twitter.Api.Public.get_self_tweets(cli_pid)==["#Hello first tweet"]
-    assert Twitter.Api.Public.get_followed_tweets(cli_pid, "Hello")==["#Hello first tweet"]
+    assert Twitter.Api.Public.get_self_tweets(cli_pid)==[msg]
+    assert Twitter.Api.Public.get_followed_tweets(cli_pid, "Hello")==[msg]
   end
+
+  test "Tweet test with multiple hash tags" do
+    {_e_pid, api_pid}=Twitter.Init.main(1000)
+    unames=Twitter.Api.Public.fetch_users(api_pid)
+    cli_pid=Twitter.Api.Public.login(api_pid, Enum.random(unames))
+    msg="#Hello #first tweet"
+    Twitter.Api.Public.tweet(cli_pid, msg)
+    #since tweet is a cast request, they need time to be reflected on updation
+    :timer.sleep(100)
+    assert Twitter.Api.Public.get_self_tweets(cli_pid)==[msg]
+    assert Twitter.Api.Public.get_followed_tweets(cli_pid, "Hello")==[msg]
+    assert Twitter.Api.Public.get_followed_tweets(cli_pid, "first")==[msg]
+  end
+
 
   test "Tweet test with mentions" do
     {_e_pid, api_pid}=Twitter.Init.main(1000)
@@ -66,13 +82,30 @@ defmodule Twitter.Test do
     cli_pid=Twitter.Api.Public.login(api_pid, Enum.random(unames))
     rand_mention=Enum.random(unames)
     mention_pid=Twitter.Api.Public.login(api_pid, rand_mention)
-    Twitter.Api.Public.tweet(cli_pid, "#Hello @#{rand_mention} first tweet")
+    msg="#Hello @#{rand_mention} first tweet"
+    Twitter.Api.Public.tweet(cli_pid, msg)
     #since tweet is a cast request, they need time to be reflected on updation
     :timer.sleep(100)
-    assert Twitter.Api.Public.get_self_tweets(cli_pid)==["#Hello @#{rand_mention} first tweet"]
-    assert Twitter.Api.Public.get_followed_tweets(cli_pid, "Hello")==["#Hello @#{rand_mention} first tweet"]
-    assert Twitter.Api.Public.get_my_mentions(mention_pid)==["#Hello @#{rand_mention} first tweet"]
+    assert Twitter.Api.Public.get_self_tweets(cli_pid)==[msg]
+    assert Twitter.Api.Public.get_followed_tweets(cli_pid, "Hello")==[msg]
+    assert Twitter.Api.Public.get_my_mentions(mention_pid)==[msg]
   end
 
+  test "Tweet test with consecutive mentions" do
+    {_e_pid, api_pid}=Twitter.Init.main(1000)
+    unames=Twitter.Api.Public.fetch_users(api_pid)
+    cli_pid=Twitter.Api.Public.login(api_pid, Enum.random(unames))
+    rand_mention=Enum.random(unames)
+    mention_pid=Twitter.Api.Public.login(api_pid, rand_mention)
+    rand_mention2=Enum.random(unames)
+    mention_pid2=Twitter.Api.Public.login(api_pid, rand_mention2)
+    msg="#Hello @#{rand_mention} @#{rand_mention2} first tweet"
+    Twitter.Api.Public.tweet(cli_pid, msg)
+    #since tweet is a cast request, they need time to be reflected on updation
+    :timer.sleep(100)
+    assert Twitter.Api.Public.get_self_tweets(cli_pid)==[msg]
+    assert Twitter.Api.Public.get_my_mentions(mention_pid)==[msg]
+    assert Twitter.Api.Public.get_my_mentions(mention_pid2)==[msg]
+  end
 
 end
