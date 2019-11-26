@@ -33,7 +33,7 @@ defmodule Twitter.Relay do
 
   ##########follow related
   @impl true
-  def handle_cast({:follow, u_hash, to_hash}, {u_agnt_pid, fol_agnt_pid}) do
+  def handle_call({:follow, u_hash, to_hash}, _from, {u_agnt_pid, fol_agnt_pid}) do
     state=Agent.get(fol_agnt_pid, &Map.get(&1, to_hash))
     case state do
       nil->
@@ -42,7 +42,7 @@ defmodule Twitter.Relay do
         Agent.update(fol_agnt_pid, &Map.put(&1, to_hash, state++[u_hash]))
     end
     Logger.debug("Follow success from #{u_hash} to #{to_hash}")
-    {:noreply, {u_agnt_pid, fol_agnt_pid}}
+    {:reply, :ok, {u_agnt_pid, fol_agnt_pid}}
   end
 
   @impl true
