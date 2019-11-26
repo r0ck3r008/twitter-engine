@@ -49,4 +49,15 @@ defmodule Twitter.Test do
     assert Twitter.Api.Public.get_self_tweets(cli_pid)==["Hello first tweet"]
   end
 
+  test "Tweet test with hash" do
+    {_e_pid, api_pid}=Twitter.Init.main(1000)
+    unames=Twitter.Api.Public.fetch_users(api_pid)
+    cli_pid=Twitter.Api.Public.login(api_pid, Enum.random(unames))
+    Twitter.Api.Public.tweet(cli_pid, "#Hello first tweet")
+    #since tweet is a cast request, they need time to be reflected on updation
+    :timer.sleep(200)
+    assert Twitter.Api.Public.get_self_tweets(cli_pid)==["#Hello first tweet"]
+    assert Twitter.Api.Public.get_followed_tweets(cli_pid, "Hello")==["#Hello first tweet"]
+  end
+
 end
