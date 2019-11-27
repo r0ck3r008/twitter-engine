@@ -25,8 +25,8 @@ defmodule Twitter.Test do
   test "Make a followed and a follower" do
     {_e_pid, api_pid}=Twitter.Init.main(1000)
     unames=Twitter.Api.Public.fetch_users(api_pid)
-    rand_followed=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
-    rand_follower=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
+    rand_followed=Enum.random(unames)
+    rand_follower=Enum.random(unames)
     cli_pid=Twitter.Api.Public.login(api_pid, rand_follower)
     Twitter.Api.Public.follow(cli_pid, rand_followed)
     #since follow is a cast request, time delay is introduced for it to reflect
@@ -34,12 +34,28 @@ defmodule Twitter.Test do
     assert Twitter.Api.Public.following?(cli_pid, rand_followed)==true
   end
 
+  test "Test removed following after user deletion" do
+    {_e_pid, api_pid}=Twitter.Init.main(1000)
+    unames=Twitter.Api.Public.fetch_users(api_pid)
+    rand_followed=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
+    rand_follower=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
+    cli_pid=Twitter.Api.Public.login(api_pid, rand_follower)
+    followed_pid=Twitter.Api.Public.login(api_pid, rand_followed)
+    Twitter.Api.Public.follow(cli_pid, rand_followed)
+    #since follow is a cast request, time delay is introduced for it to reflect
+    :timer.sleep(100)
+    assert Twitter.Api.Public.following?(cli_pid, rand_followed)==true
+    Twitter.Api.Public.delete_user(api_pid, cli_pid)
+    :timer.sleep(200)
+    refute Twitter.Api.Public.follower?(followed_pid, rand_follower)==true
+  end
+
   test "Tweet parse test" do
     assert Twitter.Relay.Helper.parse_tweet("Hello first tweet")==[[], []]
     assert Twitter.Relay.Helper.parse_tweet("#Hello first tweet, @me")==[["Hello"], ["me"]]
   end
 
-  test "Tweet/Retweet test" do
+  test "Tweet test" do
     {_e_pid, api_pid}=Twitter.Init.main(1000)
     unames=Twitter.Api.Public.fetch_users(api_pid)
     cli_pid=Twitter.Api.Public.login(api_pid, Enum.random(unames))
@@ -108,8 +124,25 @@ defmodule Twitter.Test do
     assert Twitter.Api.Public.get_my_mentions(mention_pid2)==[msg]
   end
 
+  test "Retweet test" do
+    {_e_pid, api_pid}=Twitter.Init.main(1000)
+    unames=Twitter.Api.Public.fetch_users(api_pid)
+    rand_tweeter=Enum.random(unames)
+    rand_follower=Enum.random(unames)
+    rand_follower2=Enum.random(unames)
+    tweeter_pid=Twitter.Api.Public.login(api_pid, rand_tweeter)
+    follower_pid=Twitter.Api.Public.login(api_pid, rand_follower)
+    follower2_pid=Twitter.Api.Public.login(api_pid, rand_follower2)
+    Twitter.Api.Public.follow(follower_pid, rand_tweeter)
+    Twitter.Api.Public.follow(follower2_pid, rand_follower)
+    msg="Hello first tweet"
+    Twitter.Api.Public.tweet(tweeter_pid, msg)
+    Twitter.Api.Public.retweet(follower_pid, rand_tweeter, msg)
+    #since tweet is a cast request, they need time to be reflected on updation
+    :timer.sleep(100)
+    assert Twitter.Api.Public.get_followed_tweets(follower2_pid, rand_follower)==["Retweet: "<>msg]
+  end
   #TODO
   #Live delivery of tweets, assert recv
-  #Retweets
   #delete from followers if a user deleted account
 end
