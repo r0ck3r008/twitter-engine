@@ -46,7 +46,7 @@ defmodule Twitter.Test do
     :timer.sleep(100)
     assert Twitter.Api.Public.following?(cli_pid, rand_followed)==true
     Twitter.Api.Public.delete_user(api_pid, cli_pid)
-    :timer.sleep(200)
+    :timer.sleep(100)
     refute Twitter.Api.Public.follower?(followed_pid, rand_follower)==true
   end
 
@@ -144,5 +144,4 @@ defmodule Twitter.Test do
   end
   #TODO
   #Live delivery of tweets, assert recv
-  #delete from followers if a user deleted account
 end
