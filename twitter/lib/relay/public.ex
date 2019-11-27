@@ -20,6 +20,10 @@ defmodule Twitter.Relay.Public do
     GenServer.call(of, {:fetch_followed, u_hash})
   end
 
+  def fetch_followers(of, u_hash) do
+    GenServer.call(of, {:fetch_followers, u_hash})
+  end
+
   #as user
   def tweet(of, u_hash, msg) do
     tweet_info=[u_hash]++Twitter.Relay.Helper.parse_tweet(msg)

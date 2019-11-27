@@ -100,6 +100,12 @@ defmodule Twitter.Client do
   end
 
   @impl true
+  def handle_call(:fetch_followers, _from, {u_hash, u_pid, e_pid}) do
+    followers=Twitter.Relay.Public.fetch_followers(e_pid, u_hash)
+    {:reply, followers, {u_hash, u_pid, e_pid}}
+  end
+
+  @impl true
   def handle_call(:get_mentions, _from, {u_hash, u_pid, e_pid}) do
     tweets=Twitter.User.Public.get_my_mentions(u_pid)
     {:reply, tweets, {u_hash, u_pid, e_pid}}

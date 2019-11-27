@@ -17,6 +17,10 @@ defmodule Twitter.Api.Public do
     Twitter.Client.Public.fetch_followed(cli_pid)
   end
 
+  def fetch_followers(cli_pid) do
+    Twitter.Client.Public.fetch_followers(cli_pid)
+  end
+
   def signup(of, client) do
     GenServer.call(of, {:signup, client})
   end
@@ -80,6 +84,15 @@ defmodule Twitter.Api.Public do
   def following?(cli_pid, to_hash) do
     followed=fetch_followed(cli_pid)
     if to_hash in followed do
+      true
+    else
+      false
+    end
+  end
+
+  def follower?(cli_pid, from_hash) do
+    followers=fetch_followers(cli_pid)
+    if from_hash in followers do
       true
     else
       false

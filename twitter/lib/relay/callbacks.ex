@@ -25,9 +25,14 @@ defmodule Twitter.Relay do
 
   @impl true
   def handle_cast({:del_usr, u_hash}, {u_agnt_pid, fol_agnt_pid}) do
-    fol=Agent.get(fol_agnt_pid, &Map.get(&1, u_hash))
-    if fol != nil do
-      Agent.update(fol_agnt_pid, &Map.delete(&1, u_hash))
+    state=Agent.get(fol_agnt_pid, fn(state)->state end)
+    for {followed_hash, fol_list}<-state do
+      if u_hash in fol_list do
+        Agent.update(fol_agnt_pid, &Map.update(&1, followed_hash, fol_list--[u_hash], fn list-> fol_list--[u_hash] end))
+      end
+      if followed_hash==u_hash do
+        Agent.update(fol_agnt_pid, &Map.delete(&1, u_hash))
+      end
     end
     Agent.update(u_agnt_pid, &Map.delete(&1, u_hash))
     {:noreply, {u_agnt_pid, fol_agnt_pid}}
@@ -94,6 +99,17 @@ defmodule Twitter.Relay do
     state=Agent.get(fol_agnt_pid, fn(state)->state end)
     followed=Enum.map(state, fn({fol_hash, fol_list})-> if u_hash in fol_list, do: fol_hash end)
     {:reply, Enum.uniq(followed)--[nil], {u_agnt_pid, fol_agnt_pid}}
+  end
+
+  @impl true
+  def handle_call({:fetch_followers, u_hash}, _from, {u_agnt_pid, fol_agnt_pid}) do
+    followers=Agent.get(fol_agnt_pid, &Map.get(&1, u_hash))
+    case followers do
+      nil->
+        {:reply, [], {u_agnt_pid, fol_agnt_pid}}
+      _->
+        {:reply, followers, {u_agnt_pid, fol_agnt_pid}}
+    end
   end
   ###########query related
 
