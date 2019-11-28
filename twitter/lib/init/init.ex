@@ -1,6 +1,6 @@
 defmodule Twitter.Init do
 
-  def main(num) do
+  def main(num, testing) do
     #start the relay
     {:ok, e_pid}=Twitter.Relay.start_link
 
@@ -8,8 +8,12 @@ defmodule Twitter.Init do
     {:ok, api_pid}=Twitter.Api.start_link(e_pid)
 
     #start testing
-    start_network(num, api_pid)
-    {e_pid, api_pid}
+    if testing==1 do
+      start_network(num, api_pid)
+      {e_pid, api_pid}
+    else
+      api_tester(num, api_pid)
+    end
   end
 
   def start_network(num, api_pid) do
@@ -21,6 +25,9 @@ defmodule Twitter.Init do
   end
 
   def api_tester(num, api_pid) do
+    clients=for _x<-0..num-1, do: Twitter.Client.start_link
+    tasks=for {_, client}<-clients, do: Task.async(fn-> task_fn(client, api_pid, 0) end)
+
     #fetch usernames
     unames=Twitter.Api.Public.fetch_users(api_pid)
 
@@ -65,6 +72,8 @@ defmodule Twitter.Init do
     mentioned_pid=Twitter.Api.Public.login(api_pid, mentioned_hash)
     mentioned_tweets=Twitter.Api.Public.get_my_mentions(mentioned_pid)
     IO.puts("Tweets #{mentioned_hash} is mentioned in are: #{inspect mentioned_tweets}")
+
+    for task<-tasks, do: Task.await(task, :infinity)
   end
 
   def task_fn(client, api_pid, 0) do
