@@ -1,6 +1,6 @@
 defmodule Twitter.Init do
 
-  def main(num) do
+  def main(num, max_subscribers) do
     #start the relay
     {:ok, e_pid}=Twitter.Relay.start_link
 
@@ -8,11 +8,11 @@ defmodule Twitter.Init do
     {:ok, api_pid}=Twitter.Api.start_link(e_pid)
 
     #start testing
-    start_network(num, api_pid)
+    start_network(num, api_pid, max_subscribers, e_pid)
     {e_pid, api_pid}
   end
 
-  def start_network(num, api_pid) do
+  def start_network(num, api_pid, max_subscribers, e_pid) do
     #start clients
     clients=for _x<-0..num-1, do: Twitter.Client.start_link
 
@@ -21,8 +21,6 @@ defmodule Twitter.Init do
 
     #fetch usernames
     unames=Twitter.Api.Public.fetch_users(api_pid)
-
-    max_subscribers = 20
 
     #start logging in
     login_cli=for uname<-unames, do: Twitter.Api.Public.login(api_pid, uname)
@@ -34,6 +32,25 @@ defmodule Twitter.Init do
       acc+1
       end
     )
+
+    f_pid = Twitter.Relay.Public.fetch_fol_agnt_pid(e_pid)
+
+    follower_count = Agent.get(f_pid, fn(state) ->
+                      unames = Map.keys(state)
+                      Enum.reduce(unames, [], fn x, acc -> [length(Map.get(state, x))|acc] end)
+                      end)
+
+    sorted_count = Enum.sort(follower_count)
+
+    #rank_list = %{}
+    #Enum.reduce(sorted_count, num, fn x, acc ->
+
+      #Map.put(rank_list, acc, x)
+      #acc-1
+      #end
+    #)
+
+    generate_csv(sorted_count)
 
 
   end
@@ -47,14 +64,14 @@ defmodule Twitter.Init do
     # :timer.sleep(3000)
 
     #start random follow a celebrity
-    celeb_indx=Salty.Random.uniform(length(unames)-1)
+    celeb_indx=:rand.uniform(length(unames))
     celeb_hash=Enum.at(unames, celeb_indx)
     celeb_cli=Enum.at(login_cli, celeb_indx)
-    n_followers=Salty.Random.uniform(length(login_cli))-1
-    for x<-0..n_followers-1, do: Twitter.Api.Public.follow(Enum.at(login_cli, x), celeb_hash)
+    n_followers=:rand.uniform(length(login_cli))
+    for x<-0..n_followers-1, do: Twitter.Api.Public.follow(Enum.random(login_cli))
 
     #make the celeb tweet
-    mentioned_hash=Enum.at(unames, Salty.Random.uniform(length(unames)-1))
+    mentioned_hash=Enum.random(unames)
     msg="#hello everyone espicially @#{mentioned_hash}, #YOLO!"
     Twitter.Api.Public.tweet(celeb_cli, msg)
     #:timer.sleep(3000)
@@ -65,7 +82,7 @@ defmodule Twitter.Init do
     :timer.sleep(3000)
     #make any celeb follower get tweets of him
     #->login any client
-    cli_hash=Enum.at(unames, Salty.Random.uniform(length(unames))-1)
+    cli_hash=Enum.random(unames)
     cli_pid=Twitter.Api.Public.login(api_pid, cli_hash)
     #-> login celeb
     celeb_pid=Twitter.Api.Public.login(api_pid, celeb_hash)
@@ -92,6 +109,12 @@ defmodule Twitter.Init do
   def task_fn(client, api_pid, count) do
     :timer.sleep(1000)
     task_fn(client, api_pid, count)
+  end
+
+  def generate_csv(map) do
+    {:ok, file} = File.open "zipf.csv", [:write]
+    Enum.each(map, fn(x) -> IO.write(file, Integer.to_string(x)<>"\n") end)
+    File.close file
   end
 
 end
