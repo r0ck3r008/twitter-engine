@@ -2,7 +2,9 @@ defmodule TwitterTest do
   use ExUnit.Case
 
   test "Zipf distribution" do
-    {e_pid, api_pid}=Twitter.Init.main(100)
+    maxSubscribers = 150
+    num = 200
+    {e_pid, api_pid}=Twitter.Init.main(num, maxSubscribers)
 
     f_pid = Twitter.Relay.Public.fetch_fol_agnt_pid(e_pid)
 
@@ -12,9 +14,11 @@ defmodule TwitterTest do
                       end)
 
     sorted_count = Enum.sort(follower_count)
-    assert Enum.at(sorted_count, 99) == 20
-    assert Enum.at(sorted_count, 98) == 10
-    assert Enum.at(sorted_count, 97) == 5
+
+    assert Enum.at(sorted_count, num-1) == maxSubscribers
+    assert Enum.at(sorted_count, num-2) == round(maxSubscribers/2)
+    assert Enum.at(sorted_count, num-3) == round(maxSubscribers/3)
+
   end
 
 
