@@ -3,8 +3,7 @@ defmodule Twitter.Api.Public do
   require Logger
 
   def hash_it(msg) do
-    Salty.Hash.Sha256.hash(msg)
-    |> elem(1)
+    :crypto.hash(:sha, msg)
     |> Base.encode16()
     |> String.slice(0, 8)
   end
