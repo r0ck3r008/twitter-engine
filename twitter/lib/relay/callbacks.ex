@@ -28,7 +28,7 @@ defmodule Twitter.Relay do
     state=Agent.get(fol_agnt_pid, fn(state)->state end)
     for {followed_hash, fol_list}<-state do
       if u_hash in fol_list do
-        Agent.update(fol_agnt_pid, &Map.update(&1, followed_hash, fol_list--[u_hash], fn list-> fol_list--[u_hash] end))
+        Agent.update(fol_agnt_pid, &Map.update(&1, followed_hash, fol_list--[u_hash], fn _list-> fol_list--[u_hash] end))
       end
       if followed_hash==u_hash do
         Agent.update(fol_agnt_pid, &Map.delete(&1, u_hash))
